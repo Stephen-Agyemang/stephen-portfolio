@@ -66,7 +66,7 @@ const Navbar = () => {
 
   const handleHover = (e, enter) => {
     if (section === "home") {
-        e.target.style.color = enter ? "#a6a8aeff" : "#9ee7d7";
+        e.target.style.color = enter ? "#a6a8aeff" : "#ffffffff";
         e.target.style.backgroundColor = enter ? "rgba(255,255,255,0.08)" : "transparent";
     }  else {
         e.target.style.color = enter ? "#333" : "#444";
