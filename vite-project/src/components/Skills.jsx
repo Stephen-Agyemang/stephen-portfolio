@@ -15,6 +15,8 @@ const skills = [
     { name: "CSS", cls: "devicon-css3-plain colored", url: "https://www.youtube.com/watch?v=ieTHC78giGQ" },
     { name: "VS Code", cls: "devicon-vscode-plain colored", url: "https://www.youtube.com/watch?v=B-s71n0dHUk" },
     { name: "PyCharm", cls: "devicon-pycharm-plain colored", url: "https://www.youtube.com/watch?v=HHcZbXsZtm0" },
+    { name: "IntelliJ IDEA", cls: "devicon-intellij-plain colored", url: "https://www.youtube.com/watch?v=GSKERVTMWqs" },
+    { name: "Spring Boot", cls: "devicon-spring-plain colored", url: "https://www.youtube.com/watch?v=gJrjgg1KVL4" }
 ];
 
 const Skills = () => {
