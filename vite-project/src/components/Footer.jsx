@@ -100,7 +100,7 @@ const Footer = () => {
         style={{
           margin: "6px 0 0 0",
           fontSize: isMobile ? "0.8rem" : "0.9rem",
-          color: "#444",
+          color: isMobile ? "#e5fff7" : "#444",
         }}
       >
         © {currentYear} Stephen B. Agyemang. All rights reserved.

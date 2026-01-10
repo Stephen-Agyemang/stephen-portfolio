@@ -1,4 +1,5 @@
 import React from "react";
+import "./App.css";
 import Navbar from "./components/Navbar.jsx";
 import Hero from "./components/Hero.jsx";
 import About from "./components/About.jsx";
@@ -14,7 +15,7 @@ if (typeof window !== 'undefined') {
 
 function App() {
   return (
-    <div className="app-container" style={{ background: "linear-gradient(135deg, #f5f5f5 0%, #eee9e4 50%, #eee8e3 100%)", color: '#e3e9e5', minHeight: '100vh' }}> 
+    <div className="app-container" style={{ background: "linear-gradient(135deg, #f5f5f5 0%, #eee9e4 50%, #eee8e3 100%)", minHeight: '100vh' }}> 
       <Navbar />
       <Hero />
       <About />

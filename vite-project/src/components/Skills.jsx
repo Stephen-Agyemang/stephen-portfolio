@@ -10,7 +10,7 @@ const skills = [
     { name: "React", cls: "devicon-react-original colored", url: "https://www.youtube.com/watch?v=SqcY0GlETPk" },
     { name: "Node.js", cls: "devicon-nodejs-plain colored", url: "https://www.youtube.com/watch?v=Oe421EPjeBE" },
     { name: "Git", cls: "devicon-git-plain colored", url: "https://www.youtube.com/watch?v=mJ-qvsxPHpY" },
-    { name: "GitHub", cls: "devicon-github-original colored", url: "https://www.youtube.com/watch?v=r8jQ9hVA2qs&list=PL0lo9MOBetEFcp4SCWinBdpml9B2U25-f" },
+    { name: "GitHub", cls: "devicon-github-original", url: "https://www.youtube.com/watch?v=r8jQ9hVA2qs&list=PL0lo9MOBetEFcp4SCWinBdpml9B2U25-f" },
     { name: "HTML", cls: "devicon-html5-plain colored", url: "https://www.youtube.com/watch?v=pQN-pnXPaVg" },
     { name: "CSS", cls: "devicon-css3-plain colored", url: "https://www.youtube.com/watch?v=ieTHC78giGQ" },
     { name: "VS Code", cls: "devicon-vscode-plain colored", url: "https://www.youtube.com/watch?v=B-s71n0dHUk" },
@@ -40,7 +40,7 @@ const Skills = () => {
         >
           Skills
         </h2>
-        <ul className="skills-grid" role="list" style={{ gap: isMobile ? "12px" : "18px" }}>
+        <ul className="skills-grid" role="list" style={{ gap: isMobile ? "8px" : "18px" }}>
            {skills.map(({ name, cls, url }) => (
             <li key={name} className="skill-card">
           <a
@@ -50,8 +50,8 @@ const Skills = () => {
             className="skill-link"
             aria-label={`Learn more about ${name}`}
           >
-            <i className={cls} style={{ fontSize: isMobile ? 32 : 44 }} aria-hidden="true"></i>
-            <span className="skill-label" style={{ fontSize : isMobile ? "0.85rem" : "1rem" }}>
+            <i className={cls} style={{ fontSize: isMobile ? 28 : 44 }} aria-hidden="true"></i>
+            <span className="skill-label" style={{ fontSize : isMobile ? "0.75rem" : "1rem" }}>
               {name}
             </span>
           </a>

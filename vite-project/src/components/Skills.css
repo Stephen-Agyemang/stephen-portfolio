@@ -48,6 +48,11 @@
     line-height: 1;
 }
 
+.skill-card .devicon-github-original {
+  color: #ffffff;
+  filter: brightness(1.2);
+}
+
 .skill-label {
   font-size: 0.9rem;
   color: #444;
@@ -72,20 +77,21 @@
 
 @media (max-width: 768px) {
   .skills-grid {
-    gap: 10px;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px !important;
   }
   
   .skill-card {
-    flex: 0 1 calc(50% - 5px);
-    min-width: 0;
-    padding: 12px;
-    gap: 8px;
+    flex: none;
+    padding: 10px 8px;
+    gap: 6px;
     background: rgba(0, 255, 180, 0.08);
     border: 1px solid #4a7c59;
   }
   
   .skill-label {
     color: #e5fff7;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
   }
 }
