@@ -28,15 +28,14 @@ const Projects = () => {
         <section 
         id="projects" 
         style={{ 
-            padding: isMobile ? "60px 16px" : "80px 20px", 
-            textAlign: "left", 
-            minHeight: "100vh"
+            padding: isMobile ? "100px 16px" : "120px 20px", 
+            textAlign: "left"
             }}
         >
             <h2 style={{ 
                 fontSize: isMobile ? "2rem" : "3rem", 
                 marginBottom: isMobile ? "24px" : "40px", 
-                color:"#6c9a57ff"
+                color:"#7A9E8E"
                 }} 
             >
                 Projects
@@ -52,7 +51,7 @@ const Projects = () => {
                     <div 
                     key={index} 
                     style={{ 
-                        border: "1px solid #444",
+                        border: isMobile ? "1px solid #4a7c59" : "1px solid #444",
                         borderRadius: "10px",
                         padding: isMobile ? "16px" : "20px",
                         }}
@@ -60,7 +59,7 @@ const Projects = () => {
                         <h3 style={{ 
                             fontSize: isMobile ? "1.5rem" : "2rem", 
                             marginBottom: "10px", 
-                            color: "#444" 
+                            color: isMobile ? "#e5fff7" : "#444" 
                             }}
                         > 
                             {project.name}
@@ -68,7 +67,7 @@ const Projects = () => {
                         <p style={{ 
                             fontSize: isMobile ? "0.95rem" : "1rem", 
                             marginBottom: "10px", 
-                            color: "#444", 
+                            color: isMobile ? "#e5fff7" : "#444", 
                             lineHeight: "1.5",
                             }}
                         >

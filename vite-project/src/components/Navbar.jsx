@@ -9,21 +9,29 @@ const Navbar = () => {
     const handleScroll = () => {
         setScrolled(window.scrollY > 50);
 
-        const hero = document.getElementById("home");
+        const home = document.getElementById("home");
+        const about = document.getElementById("about");
         const projects = document.getElementById("projects");
+        const skills = document.getElementById("skills");
 
-        if (hero && projects) {
-            const heroBottom = hero.offsetTop + hero.offsetHeight;
-            const projectsTop = projects.offsetTop;
+        const scrollPos = window.scrollY + 150; // Offset for better detection
 
-            if (window.scrollY < heroBottom) {
-                setSection("home"); 
-            } else if (window.scrollY < projectsTop + 200) {
-                setSection("projects");
+        let newSection = "home";
+
+        if (home && about && projects && skills) {
+            // Check from bottom to top
+            if (scrollPos >= skills.offsetTop) {
+                newSection = "skills";
+            } else if (scrollPos >= projects.offsetTop) {
+                newSection = "projects";
+            } else if (scrollPos >= about.offsetTop) {
+                newSection = "about";
             } else {
-                setSection("projects");
+                newSection = "home";
             }
-        }   
+        }
+
+        setSection(newSection);
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -61,7 +69,8 @@ const Navbar = () => {
         fontFamily: "'DM Mono', 'Courier New', monospace",
         padding: isMobile ? "4px 8px" : "6px 10px",
         borderRadius: "6px",
-        transition: "color 160ms ease, background-color 160ms ease",    
+        transition: "color 160ms ease, background-color 160ms ease, border-bottom 160ms ease",
+        borderBottom: "2px solid transparent",
   };
 
   const handleHover = (e, enter) => {
@@ -91,7 +100,10 @@ const handleHomeClick = (e) => {
     <nav style={navStyle}>
       <a
         href="#home"
-        style={linkStyle}
+        style={{
+          ...linkStyle,
+          borderBottom: section === "home" ? "2px solid #6c9a57ff" : "2px solid transparent",
+        }}
         onClick={handleHomeClick}
         onMouseOver={(e) => handleHover(e, true)}
         onMouseOut={(e) => handleHover(e, false)}
@@ -100,7 +112,10 @@ const handleHomeClick = (e) => {
       </a>
       <a
         href="#about"
-        style={linkStyle}
+        style={{
+          ...linkStyle,
+          borderBottom: section === "about" ? "2px solid #6c9a57ff" : "2px solid transparent",
+        }}
         onMouseOver={(e) => handleHover(e, true)}
         onMouseOut={(e) => handleHover(e, false)}
       >
@@ -108,7 +123,10 @@ const handleHomeClick = (e) => {
       </a>
       <a
         href="#projects"
-        style={linkStyle}
+        style={{
+          ...linkStyle,
+          borderBottom: section === "projects" ? "2px solid #6c9a57ff" : "2px solid transparent",
+        }}
         onMouseOver={(e) => handleHover(e, true)}
         onMouseOut={(e) => handleHover(e, false)}
       >
@@ -116,7 +134,10 @@ const handleHomeClick = (e) => {
       </a>
       <a
         href="#skills"
-        style={linkStyle}
+        style={{
+          ...linkStyle,
+          borderBottom: section === "skills" ? "2px solid #6c9a57ff" : "2px solid transparent",
+        }}
         onMouseOver={(e) => handleHover(e, true)}
         onMouseOut={(e) => handleHover(e, false)}
       >

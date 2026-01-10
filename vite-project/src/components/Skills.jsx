@@ -32,7 +32,7 @@ const Skills = () => {
     <section 
       id="skills" 
       className="skills"
-      style={{ padding: isMobile ? "60px 16px" : "80px 20px", }}
+      style={{ padding: isMobile ? "100px 16px" : "120px 20px", }}
     >
         <h2 
         className="skills-title" 
