@@ -1,13 +1,13 @@
 .hero {
   position: relative;
-  padding: 200px 20px 179px;
+  padding: 90px 5px 140px;
   text-align: center;
   overflow: hidden;
   color: #e5fff7;
   background: radial-gradient(circle at 20% 20%, rgba(37, 246, 183, 0.08), transparent 30%),
               radial-gradient(circle at 80% 10%, rgba(8,153,231,0.18), transparent 35%),
               #060b18;
-  border-radius: 0 0 50px 50px;
+  border-radius: 20px 20px 60px 60px;
 }
 
 .hero::before {
