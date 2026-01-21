@@ -1,4 +1,4 @@
-import React, {useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Skills.css";
 
 const skillCategories = {
@@ -6,7 +6,7 @@ const skillCategories = {
     { name: "Java", cls: "devicon-java-plain colored", url: "https://www.youtube.com/watch?v=eIrMbAQSU34" },
     { name: "Python", cls: "devicon-python-plain colored", url: "https://www.youtube.com/watch?v=rfscVS0vtbw" },
     { name: "JavaScript", cls: "devicon-javascript-plain colored", url: "https://www.youtube.com/watch?v=PkZNo7MFNFg" },
-    { name: "C++", cls: "devicon-cplusplus-plain colored", url: "https://www.youtube.com/@programmingwithmosh" },
+    { name: "C++", cls: "devicon-cplusplus-plain colored", url: "https://www.youtube.com/watch?v=1v_4dL8l8pQ" },
     { name: "HTML", cls: "devicon-html5-plain colored", url: "https://www.youtube.com/watch?v=pQN-pnXPaVg" },
     { name: "CSS", cls: "devicon-css3-plain colored", url: "https://www.youtube.com/watch?v=ieTHC78giGQ" },
   ],
@@ -47,7 +47,7 @@ const Skills = () => {
               aria-label={`Learn more about ${name}`}
             >
               <i className={cls} style={{ fontSize: isMobile ? 28 : 44 }} aria-hidden="true"></i>
-              <span className="skill-label" style={{ fontSize : isMobile ? "0.75rem" : "1rem" }}>
+              <span className="skill-label" style={{ fontSize: isMobile ? "0.75rem" : "1rem" }}>
                 {name}
               </span>
             </a>
@@ -58,22 +58,22 @@ const Skills = () => {
   );
 
   return (
-    <section 
-      id="skills" 
+    <section
+      id="skills"
       className="skills"
       style={{ padding: isMobile ? "100px 16px" : "120px 20px", }}
     >
-        <h2 
-        className="skills-title" 
-        style={{ fontSize: isMobile ? "2rem" : "3rem", marginBottom: isMobile ? "24px" : "40px"}}
-        >
-          Skills
-        </h2>
-        <div className="skills-container">
-          {renderSkillCategory("Languages", skillCategories.languages)}
-          {renderSkillCategory("Frameworks & Tools", skillCategories.frameworksTools)}
-          {renderSkillCategory("Platforms", skillCategories.platforms)}
-        </div>
+      <h2
+        className="skills-title"
+        style={{ fontSize: isMobile ? "2rem" : "3rem", marginBottom: isMobile ? "24px" : "40px" }}
+      >
+        Skills
+      </h2>
+      <div className="skills-container">
+        {renderSkillCategory("Languages", skillCategories.languages)}
+        {renderSkillCategory("Frameworks & Tools", skillCategories.frameworksTools)}
+        {renderSkillCategory("Platforms", skillCategories.platforms)}
+      </div>
     </section>
   );
 };

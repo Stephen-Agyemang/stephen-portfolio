@@ -9,6 +9,8 @@ Personal portfolio website built with **React** and **Vite**.
 - About me section
 - Projects showcase
 - Skills section
+- **AI-powered Project Discovery Chatbot** (OpenAI)
+- **Email Draft Assistant** (OpenAI)
 
 ## 📌Deployment
 

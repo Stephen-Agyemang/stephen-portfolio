@@ -1,12 +1,12 @@
 .hero {
   position: relative;
-  padding: 90px 5px 140px;
+  padding: 120px 5px 142px;
   text-align: center;
   overflow: hidden;
   color: #e5fff7;
   background: radial-gradient(circle at 20% 20%, rgba(37, 246, 183, 0.08), transparent 30%),
-              radial-gradient(circle at 80% 10%, rgba(8,153,231,0.18), transparent 35%),
-              #060b18;
+    radial-gradient(circle at 80% 10%, rgba(8, 153, 231, 0.18), transparent 35%),
+    #060b18;
   border-radius: 20px 20px 60px 60px;
 }
 
@@ -15,8 +15,8 @@
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(0,246,183,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,246,183,0.04) 1px, transparent 1px);
+    linear-gradient(rgba(0, 246, 183, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 246, 183, 0.04) 1px, transparent 1px);
   background-size: 90px 90px;
   opacity: 0.5;
   pointer-events: none;
@@ -28,8 +28,8 @@
   position: absolute;
   inset: -20% -30%;
   background:
-    radial-gradient(500px at 30% 30%, rgba(0,246,183,0.12), transparent 60%),
-    radial-gradient(600px at 80% 20%, rgba(8,153,231,0.15), transparent 65%);
+    radial-gradient(500px at 30% 30%, rgba(0, 246, 183, 0.12), transparent 60%),
+    radial-gradient(600px at 80% 20%, rgba(8, 153, 231, 0.15), transparent 65%);
   filter: blur(50px);
   animation: heroGlow 28s ease-in-out infinite;
   pointer-events: none;
@@ -37,9 +37,17 @@
 }
 
 @keyframes heroGlow {
-  0% { transform: translate(-2%, -2%) scale(1); }
-  50% { transform: translate(3%, 2%) scale(1.04); }
-  100% { transform: translate(-2%, -2%) scale(1); }
+  0% {
+    transform: translate(-2%, -2%) scale(1);
+  }
+
+  50% {
+    transform: translate(3%, 2%) scale(1.04);
+  }
+
+  100% {
+    transform: translate(-2%, -2%) scale(1);
+  }
 }
 
 .hey-there {
@@ -48,15 +56,34 @@
 }
 
 @keyframes wiggleEffect {
-  0% { transform: rotate(0deg); }
-  25% { transform: rotate(-40deg); }
-  50% { transform: rotate(3deg); }
-  75% { transform: rotate(-10deg); }
-  100% { transform: rotate(0deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(-40deg);
+  }
+
+  50% {
+    transform: rotate(3deg);
+  }
+
+  75% {
+    transform: rotate(-10deg);
+  }
+
+  100% {
+    transform: rotate(0deg);
+  }
 
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero::after { animation: none; }
-  .hey-there { animation: none; }
+  .hero::after {
+    animation: none;
+  }
+
+  .hey-there {
+    animation: none;
+  }
 }

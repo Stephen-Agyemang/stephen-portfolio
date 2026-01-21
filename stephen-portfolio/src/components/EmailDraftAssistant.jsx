@@ -4,6 +4,7 @@ import { FaPaperPlane, FaMagic, FaSpinner } from 'react-icons/fa';
 
 const EmailDraftAssistant = () => {
     const [intent, setIntent] = useState('');
+    const [senderName, setSenderName] = useState('');
     const [drafts, setDrafts] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -19,7 +20,12 @@ const EmailDraftAssistant = () => {
 
         try {
             const results = await generateEmailDrafts(intent);
-            setDrafts(results);
+            // Replace placeholder with actual name if provided
+            const finalResults = results.map(draft => ({
+                ...draft,
+                body: senderName ? draft.body.replace("[Your Name]", senderName) : draft.body
+            }));
+            setDrafts(finalResults);
         } catch (err) {
             setError('Failed to generate drafts. Please check your API key or try again.');
         } finally {
@@ -37,7 +43,7 @@ const EmailDraftAssistant = () => {
     return (
         <section id="contact-assistant" style={{
             padding: isMobile ? "60px 16px" : "80px 20px",
-            background: "linear-gradient(135deg, #fff 0%, #f9f9f9 100%)",
+            background: "transparent",
             borderTop: "1px solid #eaeaea",
             textAlign: "center"
         }}>
@@ -61,22 +67,42 @@ const EmailDraftAssistant = () => {
             </p>
 
             <div style={{ maxWidth: "700px", margin: "0 auto", textAlign: "left" }}>
-                <textarea
-                    value={intent}
-                    onChange={(e) => setIntent(e.target.value)}
-                    placeholder="e.g., 'I want to discuss a freelance React project for my startup...'"
-                    style={{
-                        width: "100%",
-                        padding: "15px",
-                        borderRadius: "10px",
-                        border: "1px solid #ddd",
-                        minHeight: "120px",
-                        fontSize: "1rem",
-                        marginBottom: "20px",
-                        fontFamily: "'Inter', sans-serif",
-                        resize: "vertical"
-                    }}
-                />
+                <div style={{ marginBottom: "20px" }}>
+                    <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", color: "#555" }}>What would you like to say?</label>
+                    <textarea
+                        value={intent}
+                        onChange={(e) => setIntent(e.target.value)}
+                        placeholder="e.g., 'I want to discuss a freelance React project for my startup...'"
+                        style={{
+                            width: "100%",
+                            padding: "15px",
+                            borderRadius: "10px",
+                            border: "1px solid #ddd",
+                            minHeight: "120px",
+                            fontSize: "1rem",
+                            fontFamily: "'Inter', sans-serif",
+                            resize: "vertical"
+                        }}
+                    />
+                </div>
+
+                <div style={{ marginBottom: "30px" }}>
+                    <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", color: "#555" }}>Your Name (optional):</label>
+                    <input
+                        type="text"
+                        value={senderName}
+                        onChange={(e) => setSenderName(e.target.value)}
+                        placeholder="e.g. John Doe"
+                        style={{
+                            width: "100%",
+                            padding: "12px",
+                            borderRadius: "10px",
+                            border: "1px solid #ddd",
+                            fontSize: "1rem",
+                            fontFamily: "'Inter', sans-serif"
+                        }}
+                    />
+                </div>
 
                 <div style={{ textAlign: "center", marginBottom: "30px" }}>
                     <button
@@ -86,8 +112,8 @@ const EmailDraftAssistant = () => {
                             padding: "12px 30px",
                             borderRadius: "30px",
                             border: "none",
-                            background: loading ? "#ccc" : "#4a7c59",
-                            color: "white",
+                            background: loading ? "#ccc" : "#c9ec9e",
+                            color: "#000",
                             fontSize: "1rem",
                             cursor: loading ? "not-allowed" : "pointer",
                             display: "inline-flex",
@@ -108,7 +134,7 @@ const EmailDraftAssistant = () => {
                         {drafts.map((draft, idx) => (
                             <div key={idx} style={{
                                 padding: "20px",
-                                border: selectedDraft === idx ? "2px solid #4a7c59" : "1px solid #ddd",
+                                border: selectedDraft === idx ? "2px solid #c9ec9e" : "1px solid #ddd",
                                 borderRadius: "10px",
                                 background: "white",
                                 cursor: "pointer",
@@ -148,8 +174,8 @@ const EmailDraftAssistant = () => {
                                         padding: "10px",
                                         borderRadius: "5px",
                                         border: "none",
-                                        background: "#4a7c59",
-                                        color: "white",
+                                        background: "#c9ec9e",
+                                        color: "#000",
                                         cursor: "pointer",
                                         display: "flex",
                                         alignItems: "center",
