@@ -17,7 +17,7 @@ const Projects = () => {
             <h2 style={{
                 fontSize: isMobile ? "2rem" : "3rem",
                 marginBottom: isMobile ? "24px" : "40px",
-                color: "#7A9E8E",
+                color: "#6c9a57ff",
                 fontFamily: "'Courier New', Courier, monospace"
             }}
             >

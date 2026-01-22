@@ -21,7 +21,7 @@ const Hero = () => {
                         margin: 0,
                         lineHeight: 1.5,
                         fontFamily: "'Courier New', Courier, monospace",
-                        color: "#555",
+                        color: "#8c8c8cff",
                         alignSelf: "flex-start",
                     }}
                 >
@@ -33,7 +33,7 @@ const Hero = () => {
                         margin: 0,
                         lineHeight: 1.1,
                         fontFamily: "'Courier New', Courier, monospace",
-                        color: "#abababff",
+                        color: "#ffffffff",
                         alignSelf: "flex-start",
                         marginLeft: isMobile ? "40px" : "100px",
                     }}

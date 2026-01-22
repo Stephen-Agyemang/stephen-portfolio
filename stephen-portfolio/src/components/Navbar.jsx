@@ -60,7 +60,7 @@ const Navbar = () => {
   };
 
   const linkStyle = {
-    color: "#444",
+    color: "#c1c1c1ff",
     textDecoration: "none",
     fontWeight: 600,
     fontSize: isMobile ? "0.9rem" : "1.05rem",
@@ -73,8 +73,8 @@ const Navbar = () => {
 
   const handleHover = (e, enter) => {
     const accent = "#6c9a57";
-    e.target.style.color = enter ? accent : "#444";
-    e.target.style.color = enter ? accent : "#444";
+    e.target.style.color = enter ? accent : "#c1c1c1ff";
+    e.target.style.color = enter ? accent : "#c1c1c1ff";
   };
 
   const handleHomeClick = (e) => {

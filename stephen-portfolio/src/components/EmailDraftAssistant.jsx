@@ -42,7 +42,7 @@ const EmailDraftAssistant = () => {
 
     return (
         <section id="contact-assistant" style={{
-            padding: isMobile ? "60px 16px" : "80px 20px",
+            padding: isMobile ? "50px 16px" : "60px 20px",
             background: "transparent",
             borderTop: "1px solid #eaeaea",
             textAlign: "center"
@@ -50,25 +50,25 @@ const EmailDraftAssistant = () => {
             <h2 style={{
                 fontSize: isMobile ? "1.8rem" : "2.5rem",
                 marginBottom: "20px",
-                color: "#444",
+                color: isMobile ? "#a6bd9bff" : "#444",
                 fontFamily: "'Courier New', Courier, monospace"
             }}>
                 Email Draft Assistant
             </h2>
             <p style={{
                 marginBottom: "30px",
-                color: "#666",
+                color: isMobile ? "#a6bd9bff" : "#666",
                 fontFamily: "'Inter', sans-serif",
                 maxWidth: "600px",
                 marginLeft: "auto",
                 marginRight: "auto"
             }}>
-                Not sure what to say? Describe what you want to contact me about, and I'll draft the email for you.
+                Not sure what to say? Use let my Intelligent Other here help you draft an email.
             </p>
 
-            <div style={{ maxWidth: "700px", margin: "0 auto", textAlign: "left" }}>
+            <div style={{ maxWidth: "700px", margin: "0 auto", textAlign: "left", width: "100%", boxSizing: "border-box" }}>
                 <div style={{ marginBottom: "20px" }}>
-                    <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", color: "#555" }}>What would you like to say?</label>
+                    <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", color: isMobile ? "#a6bd9bff" : "#555" }}>What would you like to say?</label>
                     <textarea
                         value={intent}
                         onChange={(e) => setIntent(e.target.value)}
@@ -81,13 +81,14 @@ const EmailDraftAssistant = () => {
                             minHeight: "120px",
                             fontSize: "1rem",
                             fontFamily: "'Inter', sans-serif",
-                            resize: "vertical"
+                            resize: "vertical",
+                            boxSizing: "border-box"
                         }}
                     />
                 </div>
 
                 <div style={{ marginBottom: "30px" }}>
-                    <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", color: "#555" }}>Your Name (optional):</label>
+                    <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", color: isMobile ? "#a6bd9bff" : "#555" }}>Your Name (optional):</label>
                     <input
                         type="text"
                         value={senderName}
@@ -99,7 +100,8 @@ const EmailDraftAssistant = () => {
                             borderRadius: "10px",
                             border: "1px solid #ddd",
                             fontSize: "1rem",
-                            fontFamily: "'Inter', sans-serif"
+                            fontFamily: "'Inter', sans-serif",
+                            boxSizing: "border-box"
                         }}
                     />
                 </div>
