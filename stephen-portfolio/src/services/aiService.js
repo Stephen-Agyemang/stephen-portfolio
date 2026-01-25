@@ -8,7 +8,7 @@ function getOpenAIClient() {
 
     const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
     if (!apiKey) {
-        throw new Error("OpenAI API Key is missing. Please add VITE_OPENAI_API_KEY to your environment variables.");
+        throw new Error("OpenAI API Key is missing. Please add OPENAI_API_KEY to your environment variables.");
     }
 
     openaiClient = new OpenAI({
