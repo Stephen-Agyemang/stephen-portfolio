@@ -6,9 +6,9 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const thumbnailsDir = path.join(__dirname, 'thumbnails');
-if (!fs.existsSync(thumbnailsDir)) {
-    fs.mkdirSync(thumbnailsDir);
+const publicDir = path.join(__dirname, 'public');
+if (!fs.existsSync(publicDir)) {
+    fs.mkdirSync(publicDir);
 }
 
 let browser;
@@ -20,23 +20,27 @@ try {
     const page = await browser.newPage();
     await page.setViewport({ width: 1200, height: 630 });
 
-    await page.goto('https://stephen-vite.vercel.app', { 
-        waitUntil: 'networkidle2', 
+    // Using localhost if possible, otherwise keep the vercel link
+    await page.goto('http://localhost:3000', {
+        waitUntil: 'networkidle2',
         timeout: 30000
     });
 
+    // Optionally hide elements that shouldn't be in the thumbnail
     await page.evaluate(() => {
-        const header = document.querySelector('header');
-        if(header) header.style.display = 'none';
+        const assistant = document.querySelector('#assistant-toggle'); // Example ID
+        if (assistant) assistant.style.display = 'none';
+        const navbar = document.querySelector('nav');
+        if (navbar) navbar.style.display = 'none';
     });
 
-    const outputPath = path.join(thumbnailsDir, `thumbnail-${Date.now()}.png`);
+    const outputPath = path.join(publicDir, 'og-image.png');
     await page.screenshot({ path: outputPath, fullPage: false });
 
-    console.log(`✓ Thumbnail generated: ${outputPath}`);
-    } catch(error) {
-        console.error('✗ Thumbnail generation failed:', error.message);
-        process.exit(1);
-    } finally {
-        if (browser) await browser.close();
-    }
+    console.log(`✓ Open Graph image generated: ${outputPath}`);
+} catch (error) {
+    console.error('✗ Thumbnail generation failed:', error.message);
+    process.exit(1);
+} finally {
+    if (browser) await browser.close();
+}
