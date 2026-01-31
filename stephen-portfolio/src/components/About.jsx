@@ -45,8 +45,8 @@ const About = () => {
           color: isMobile ? "#e5fff7" : "#444",
           fontFamily: "'Inter', system-ui, sans-serif"
         }}>
-          I am a Ghanaian international student at DePauw University, pursuing a degree
-          in Computer Science with a 3.95 GPA. As an Honor Scholar, I focus on building
+          I am a Ghanaian Honor Scholar at DePauw University, pursuing a degree
+          in Computer Science with a current GPA of 4.00. As an Honor Scholar, I focus on building
           scalable software and exploring the intersections of AI and Machine Learning.
         </p>
 
@@ -60,8 +60,8 @@ const About = () => {
           interest in optimizing data structures and algorithms. Beyond the terminal,
           I am a multi-disciplinary enthusiast—blending the logic of Mathematics with
           the creative expression of Theatre and Acting. Whether I am collaborating on
-          a soccer pitch or architecting a full-stack application like Zork v2, I thrive in environments
-          that challenge my problem-solving and teamwork skills.
+          a soccer pitch or architecting a full-stack application like Zork v2, I thrive 
+          in environments that challenge my problem-solving and teamwork skills.
         </p>
       </div>
     </section>

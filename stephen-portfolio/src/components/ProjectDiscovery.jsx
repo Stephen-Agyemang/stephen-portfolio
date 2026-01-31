@@ -122,7 +122,7 @@ const ProjectDiscovery = () => {
                     height: "60px",
                     padding: isOpen ? "0" : "0 25px",
                     borderRadius: "30px",
-                    background: scrolled || isOpen ? "#c9ec9e" : (isHovered ? "rgba(255, 255, 255, 0.25)" : "rgba(255, 255, 255, 0.1)"),
+                    background: scrolled || isOpen ? "#6c9a57" : (isHovered ? "rgba(255, 255, 255, 0.25)" : "rgba(255, 255, 255, 0.1)"),
                     backdropFilter: scrolled || isOpen ? "none" : "blur(5px)",
                     WebkitBackdropFilter: scrolled || isOpen ? "none" : "blur(5px)",
                     boxShadow: scrolled || isOpen ? "0 4px 15px rgba(0,0,0,0.1)" : "0 4px 15px rgba(0,0,0,0.05)",

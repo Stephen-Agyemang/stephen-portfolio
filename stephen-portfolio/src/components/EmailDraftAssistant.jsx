@@ -51,7 +51,7 @@ const EmailDraftAssistant = () => {
             <h2 style={{
                 fontSize: isMobile ? "1.8rem" : "2.5rem",
                 marginBottom: "20px",
-                color: isMobile ? "#a6bd9bff" : "#444",
+                color: isMobile ? "#6c9a57" : "#444",
                 fontFamily: "'Courier New', Courier, monospace"
             }}>
                 Email Draft Assistant
@@ -73,7 +73,7 @@ const EmailDraftAssistant = () => {
                     <textarea
                         value={intent}
                         onChange={(e) => setIntent(e.target.value)}
-                        placeholder="e.g., 'I want to discuss a freelance React project for my startup...'"
+                        placeholder="e.g., 'I want to inform Stephen about a potential opportunity or just inquire about something...'"
                         style={{
                             width: "100%",
                             padding: "15px",
@@ -94,7 +94,7 @@ const EmailDraftAssistant = () => {
                         type="text"
                         value={senderName}
                         onChange={(e) => setSenderName(e.target.value)}
-                        placeholder="e.g. John Doe"
+                        placeholder="e.g. Sam Smith"
                         style={{
                             width: "100%",
                             padding: "12px",
@@ -115,7 +115,7 @@ const EmailDraftAssistant = () => {
                             padding: "12px 30px",
                             borderRadius: "30px",
                             border: "none",
-                            background: loading ? "#ccc" : "#c9ec9e",
+                            background: loading ? "#ccc" : "#6c9a57",
                             color: "#000",
                             fontSize: "1rem",
                             cursor: loading ? "not-allowed" : "pointer",
@@ -126,7 +126,7 @@ const EmailDraftAssistant = () => {
                         }}
                     >
                         {loading ? <FaSpinner className="spin" /> : <FaMagic />}
-                        {loading ? "Drafting..." : "Generate Magic Drafts"}
+                        {loading ? "Drafting..." : "Generate Drafts"}
                     </button>
                 </div>
 

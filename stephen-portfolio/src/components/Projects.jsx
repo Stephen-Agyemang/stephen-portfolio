@@ -1,5 +1,5 @@
 import React from "react";
-import arrow from "../assets/arrow.jpg";
+import { FaArrowRight } from "react-icons/fa";
 import { projects } from "../data/projects";
 
 const Projects = () => {
@@ -44,6 +44,8 @@ const Projects = () => {
                             display: "flex",
                             flexDirection: "column",
                             transition: "all 0.3s ease",
+                            position: "relative",
+                            overflow: "visible"
                         }}
                         onMouseOver={(e) => {
                             e.currentTarget.style.transform = "translateY(-5px)";
@@ -98,51 +100,62 @@ const Projects = () => {
                             {project.description}
                         </p>
 
-                        <div style={{ marginTop: "auto" }}>
-                            <a href={project.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
-                                <button
+                        <a
+                            href={project.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                                textDecoration: "none",
+                                position: "absolute",
+                                left: "50%",
+                                bottom: isMobile ? "-22px" : "-28px",
+                                transform: "translateX(-50%)",
+                                zIndex: 2,
+                                minWidth: isMobile ? "160px" : "200px"
+                            }}
+                            aria-label={`View source code for ${project.name}`}
+                        >
+                            <button
+                                style={{
+                                    width: "100%",
+                                    padding: isMobile ? "10px 20px" : "14px 32px",
+                                    borderRadius: "16px",
+                                    border: "none",
+                                    background: "linear-gradient(90deg, #6c9a57 0%, #4e7d2c 100%)",
+                                    color: "#fff",
+                                    fontWeight: "700",
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    gap: "10px",
+                                    fontSize: isMobile ? "1rem" : "1.1rem",
+                                    boxShadow: "0 8px 24px 0 rgba(76, 125, 44, 0.18)",
+                                    transition: "all 0.2s cubic-bezier(.4,0,.2,1)",
+                                    position: "relative",
+                                    top: 0
+                                }}
+                                onMouseOver={e => {
+                                    e.currentTarget.style.background = "linear-gradient(90deg, #4e7d2c 0%, #6c9a57 100%)";
+                                    e.currentTarget.style.transform = "scale(1.06)";
+                                }}
+                                onMouseOut={e => {
+                                    e.currentTarget.style.background = "linear-gradient(90deg, #6c9a57 0%, #4e7d2c 100%)";
+                                    e.currentTarget.style.transform = "scale(1)";
+                                }}
+                            >
+                                View Source Code
+                                <FaArrowRight
                                     style={{
-                                        position: "relative",
-                                        padding: isMobile ? "10px 42px 10px 20px" : "12px 48px 12px 24px",
-                                        borderRadius: "12px",
-                                        border: "none",
-                                        backgroundColor: "#333",
+                                        height: isMobile ? "20px" : "24px",
+                                        width: isMobile ? "20px" : "24px",
                                         color: "#fff",
-                                        fontWeight: "600",
-                                        cursor: "pointer",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "10px",
-                                        fontSize: isMobile ? "0.9rem" : "1rem",
-                                        transition: "all 0.3s ease",
-                                        boxShadow: "0 4px 15px rgba(0,0,0,0.1)"
+                                        marginLeft: "8px",
+                                        flexShrink: 0
                                     }}
-                                    onMouseOver={(e) => {
-                                        e.currentTarget.style.backgroundColor = "#000";
-                                        e.currentTarget.style.transform = "scale(1.02)";
-                                    }}
-                                    onMouseOut={(e) => {
-                                        e.currentTarget.style.backgroundColor = "#333";
-                                        e.currentTarget.style.transform = "scale(1)";
-                                    }}
-                                >
-                                    Source code
-                                    <img
-                                        src={arrow}
-                                        alt="arrow"
-                                        style={{
-                                            position: "absolute",
-                                            right: isMobile ? "12px" : "16px",
-                                            top: "50%",
-                                            transform: "translateY(-50%)",
-                                            height: isMobile ? "18px" : "22px",
-                                            filter: "invert(1)",
-                                            pointerEvents: "none",
-                                        }}
-                                    />
-                                </button>
-                            </a>
-                        </div>
+                                />
+                            </button>
+                        </a>
                     </div>
                 ))}
             </div>
