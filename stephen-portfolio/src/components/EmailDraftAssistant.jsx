@@ -115,7 +115,7 @@ const EmailDraftAssistant = () => {
                             padding: "12px 30px",
                             borderRadius: "30px",
                             border: "none",
-                            background: loading ? "#ccc" : "#6c9a57",
+                            background: loading ? "#ccc" : "#c9ec9e",
                             color: "#000",
                             fontSize: "1rem",
                             cursor: loading ? "not-allowed" : "pointer",

@@ -8,17 +8,9 @@ const ProjectDiscovery = () => {
     const [isHovered, setIsHovered] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [query, setQuery] = useState('');
-    const [messages, setMessages] = useState(() => {
-        try {
-            const saved = localStorage.getItem('chat-messages');
-            return saved ? JSON.parse(saved) : [
-                { type: 'bot', content: "Hi! I'm Stephen's AI Assistant. Ask me about his projects or skills!" }
-            ];
-        } catch (e) {
-            console.error("Error loading messages from localStorage:", e);
-            return [{ type: 'bot', content: "Hi! I'm Stephen's AI Assistant. Ask me about his projects or skills!" }];
-        }
-    });
+    const [messages, setMessages] = useState([
+        { type: 'bot', content: "Hi! I'm Stephen's AI Assistant. Ask me about his projects or skills!" }
+    ]);
     const [loading, setLoading] = useState(false);
     const messagesEndRef = useRef(null);
     const lastRequestTimeRef = useRef(0);
@@ -32,9 +24,7 @@ const ProjectDiscovery = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    useEffect(() => {
-        localStorage.setItem('chat-messages', JSON.stringify(messages));
-    }, [messages]);
+    // Chat history resets on page reload (no localStorage persistence)
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -122,7 +112,7 @@ const ProjectDiscovery = () => {
                     height: "60px",
                     padding: isOpen ? "0" : "0 25px",
                     borderRadius: "30px",
-                    background: scrolled || isOpen ? "#6c9a57" : (isHovered ? "rgba(255, 255, 255, 0.25)" : "rgba(255, 255, 255, 0.1)"),
+                    background: scrolled || isOpen ? "#a7d273ff" : (isHovered ? "rgba(255, 255, 255, 0.25)" : "rgba(255, 255, 255, 0.1)"),
                     backdropFilter: scrolled || isOpen ? "none" : "blur(5px)",
                     WebkitBackdropFilter: scrolled || isOpen ? "none" : "blur(5px)",
                     boxShadow: scrolled || isOpen ? "0 4px 15px rgba(0,0,0,0.1)" : "0 4px 15px rgba(0,0,0,0.05)",
@@ -207,8 +197,9 @@ const ProjectDiscovery = () => {
                                     boxShadow: msg.type === 'bot' ? "0 2px 5px rgba(0,0,0,0.05)" : "none",
                                     borderBottomRightRadius: msg.type === 'user' ? "4px" : "15px",
                                     borderBottomLeftRadius: msg.type === 'bot' ? "4px" : "15px",
-                                    fontSize: "0.95rem",
-                                    lineHeight: "1.4"
+                                    fontSize: "0.82rem",
+                                    lineHeight: "1.45",
+                                    wordBreak: "break-word"
                                 }}>
                                     {msg.content}
                                 </div>
@@ -275,7 +266,7 @@ const ProjectDiscovery = () => {
                                 borderRadius: "20px",
                                 border: "1px solid #ddd",
                                 outline: "none",
-                                fontSize: "0.95rem"
+                                fontSize: "0.85rem"
                             }}
                         />
                         <button

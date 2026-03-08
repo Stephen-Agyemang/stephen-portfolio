@@ -17,7 +17,7 @@ const Projects = () => {
             <h2 style={{
                 fontSize: isMobile ? "2rem" : "3rem",
                 marginBottom: isMobile ? "24px" : "40px",
-                color: "#6c9a57ff",
+                color: " c",
                 fontFamily: "'Courier New', Courier, monospace"
             }}
             >
@@ -111,7 +111,7 @@ const Projects = () => {
                                 bottom: isMobile ? "-22px" : "-28px",
                                 transform: "translateX(-50%)",
                                 zIndex: 2,
-                                minWidth: isMobile ? "160px" : "200px"
+                                minWidth: isMobile ? "200px" : "260px"
                             }}
                             aria-label={`View source code for ${project.name}`}
                         >
@@ -120,28 +120,32 @@ const Projects = () => {
                                     width: "100%",
                                     padding: isMobile ? "10px 20px" : "14px 32px",
                                     borderRadius: "16px",
-                                    border: "none",
-                                    background: "linear-gradient(90deg, #6c9a57 0%, #4e7d2c 100%)",
-                                    color: "#fff",
+                                    border: "1px solid rgba(255, 255, 255, 0.5)",
+                                    background: "rgba(255, 255, 255, 0.25)",
+                                    backdropFilter: "blur(12px)",
+                                    WebkitBackdropFilter: "blur(12px)",
+                                    color: "#333",
                                     fontWeight: "700",
                                     cursor: "pointer",
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
                                     gap: "10px",
-                                    fontSize: isMobile ? "1rem" : "1.1rem",
-                                    boxShadow: "0 8px 24px 0 rgba(76, 125, 44, 0.18)",
+                                    fontSize: isMobile ? "0.85rem" : "0.95rem",
+                                    boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.08)",
                                     transition: "all 0.2s cubic-bezier(.4,0,.2,1)",
                                     position: "relative",
                                     top: 0
                                 }}
                                 onMouseOver={e => {
-                                    e.currentTarget.style.background = "linear-gradient(90deg, #4e7d2c 0%, #6c9a57 100%)";
+                                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.45)";
                                     e.currentTarget.style.transform = "scale(1.06)";
+                                    e.currentTarget.style.boxShadow = "0 8px 32px 0 rgba(31, 38, 135, 0.15)";
                                 }}
                                 onMouseOut={e => {
-                                    e.currentTarget.style.background = "linear-gradient(90deg, #6c9a57 0%, #4e7d2c 100%)";
+                                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.25)";
                                     e.currentTarget.style.transform = "scale(1)";
+                                    e.currentTarget.style.boxShadow = "0 8px 32px 0 rgba(31, 38, 135, 0.08)";
                                 }}
                             >
                                 View Source Code
@@ -149,7 +153,7 @@ const Projects = () => {
                                     style={{
                                         height: isMobile ? "20px" : "24px",
                                         width: isMobile ? "20px" : "24px",
-                                        color: "#fff",
+                                        color: "#333",
                                         marginLeft: "8px",
                                         flexShrink: 0
                                     }}
