@@ -1,9 +1,107 @@
 import OpenAI from "openai";
 import { fetchGithubProjects } from "./githubFetcher.js";
+import { getLinkedInProfile } from "./linkedinProfile.js";
+import { getHandshakeProfile } from "./handshakeProfile.js";
 
 const client = new OpenAI({
     apiKey: process.env.VITE_OPENAI_API_KEY || process.env.OPENAI_API_KEY,
 });
+
+/**
+ * Build a readable context string from the LinkedIn profile data.
+ */
+function buildLinkedInContext(profile) {
+    let context = `\n--- LinkedIn Profile ---\n`;
+    context += `Headline: ${profile.headline}\n`;
+    context += `Summary: ${profile.summary}\n`;
+    context += `Profile URL: ${profile.profileUrl}\n`;
+
+    if (profile.workExperience?.length > 0) {
+        context += `\nWork Experience:\n`;
+        profile.workExperience.forEach(exp => {
+            context += `  - ${exp.title} at ${exp.company} (${exp.dates})${exp.location ? `, ${exp.location}` : ""}\n`;
+            if (exp.description) context += `    ${exp.description}\n`;
+        });
+    }
+
+    if (profile.education.length > 0) {
+        context += `\nEducation:\n`;
+        profile.education.forEach(edu => {
+            context += `  - ${edu.degree} from ${edu.school} (${edu.dates}), GPA: ${edu.gpa}\n`;
+            if (edu.honors?.length) context += `    Honors: ${edu.honors.join(", ")}\n`;
+            if (edu.relevantCoursework?.length) context += `    Coursework: ${edu.relevantCoursework.join(", ")}\n`;
+        });
+    }
+
+    if (profile.skills.length > 0) {
+        context += `\nSkills: ${profile.skills.join(", ")}\n`;
+    }
+
+    if (profile.certifications.length > 0) {
+        context += `\nCertifications:\n`;
+        profile.certifications.forEach(cert => {
+            context += `  - ${cert.name} by ${cert.issuer} (${cert.date})\n`;
+        });
+    }
+
+    if (profile.volunteerAndLeadership?.length > 0) {
+        context += `\nLeadership & Volunteering:\n`;
+        profile.volunteerAndLeadership.forEach(v => {
+            context += `  - ${v.role} at ${v.organization} (${v.dates})\n`;
+            if (v.description) context += `    ${v.description}\n`;
+        });
+    }
+
+    if (profile.recentActivity?.length > 0) {
+        context += `\nRecent LinkedIn Activity: ${profile.recentActivity.join("; ")}\n`;
+    }
+
+    return context;
+}
+
+/**
+ * Build a readable context string from the Handshake profile data.
+ */
+function buildHandshakeContext(profile) {
+    let context = `\n--- Handshake Profile ---\n`;
+    context += `University: ${profile.university}\n`;
+    context += `Major: ${profile.major}\n`;
+    context += `Graduation Year: ${profile.graduationYear}\n`;
+    context += `GPA: ${profile.gpa}\n`;
+    context += `Profile URL: ${profile.profileUrl}\n`;
+
+    if (profile.jobPreferences) {
+        const prefs = profile.jobPreferences;
+        context += `\nJob Preferences:\n`;
+        if (prefs.jobTypes?.length) context += `  Looking for: ${prefs.jobTypes.join(", ")}\n`;
+        if (prefs.workAuthorization) context += `  Work Authorization: ${prefs.workAuthorization}\n`;
+        context += `  Willing to Relocate: ${prefs.willingToRelocate ? "Yes" : "No"}\n`;
+        if (prefs.preferredLocations?.length) context += `  Preferred Locations: ${prefs.preferredLocations.join(", ")}\n`;
+    }
+
+    if (profile.careerInterests) {
+        const interests = profile.careerInterests;
+        if (interests.industries?.length) context += `\nTarget Industries: ${interests.industries.join(", ")}\n`;
+        if (interests.roles?.length) context += `Target Roles: ${interests.roles.join(", ")}\n`;
+    }
+
+    if (profile.skills?.length > 0) {
+        context += `\nHandshake Skills: ${profile.skills.join(", ")}\n`;
+    }
+
+    if (profile.eventsAttended?.length > 0) {
+        context += `\nCareer Events Attended:\n`;
+        profile.eventsAttended.forEach(event => {
+            context += `  - ${event.name} (${event.date}) — ${event.type}\n`;
+        });
+    }
+
+    if (profile.applicationHighlights?.length > 0) {
+        context += `\nNotable Applications: ${profile.applicationHighlights.join("; ")}\n`;
+    }
+
+    return context;
+}
 
 export default async function handler(req, res) {
     if (req.method !== "POST") {
@@ -32,15 +130,21 @@ export default async function handler(req, res) {
             }
         });
 
+        // Get LinkedIn and Handshake profile data
+        const linkedInProfile = getLinkedInProfile();
+        const handshakeProfile = getHandshakeProfile();
+
         const stephenProfile = {
             name: "Stephen Agyemang",
-            education: "Computer Science at DePauw University (3.95 GPA, Honor Scholar)",
-            background: "Ghanaian international student",
-            interests: ["Artificial Intelligence", "Machine Learning", "Mathematics", "Theatre & Acting", "Soccer"],
-            bio: "Focuses on building scalable software and exploring the intersections of AI and ML. Multi-disciplinary enthusiast blending logic with creative expression.",
+            education: "Computer Science at DePauw University (3.95 cumulative GPA, 4.0 current semester GPA, Honor Scholar, CodePath Fellow '26)",
+            background: "Ghanaian international student, Sophomore at DePauw University",
+            interests: ["Artificial Intelligence", "Machine Learning", "Mathematics", "Theatre & Acting", "Soccer", "Photography"],
+            bio: "Focuses on building scalable software and exploring the intersections of AI and ML. Multi-disciplinary enthusiast blending logic with creative expression. Minors in Theatre and Mathematics.",
             links: {
-                linkedIn: "https://www.linkedin.com/in/stephen-agyemang/",
-                github: "https://github.com/Stephen-Agyemang"
+                linkedIn: "https://www.linkedin.com/in/stephagyemang",
+                github: "https://github.com/Stephen-Agyemang",
+                handshake: "https://app.joinhandshake.com/profiles/stephen_agyemang",
+                portfolio: "https://stephen-vite.vercel.app"
             }
         };
 
@@ -52,8 +156,12 @@ export default async function handler(req, res) {
             About Stephen: ${stephenProfile.bio} Education: ${stephenProfile.education}. 
             Origins: ${stephenProfile.background}. 
             Interests: ${stephenProfile.interests.join(", ")}.
-            Links: LinkedIn (${stephenProfile.links.linkedIn}), GitHub (${stephenProfile.links.github})
+            Links: LinkedIn (${stephenProfile.links.linkedIn}), GitHub (${stephenProfile.links.github}), Handshake (${stephenProfile.links.handshake}), Portfolio (${stephenProfile.links.portfolio})
         `;
+
+        // Build enriched context from LinkedIn and Handshake
+        const linkedInContext = buildLinkedInContext(linkedInProfile);
+        const handshakeContext = buildHandshakeContext(handshakeProfile);
 
         // Set response headers for streaming 
         res.setHeader("Content-Type", "text/event-stream");
@@ -66,18 +174,22 @@ export default async function handler(req, res) {
             messages: [
                 {
                     role: "system", content: `You are Stephen Agyemang's personal portfolio AI assistant.
-          Your goal is to chat with visitors, answer questions about Stephen's background, education, and interests, but prioritize his projects when technical skills are mentioned.
+          Your goal is to chat with visitors, answer questions about Stephen's background, education, interests, professional experience, and career goals — and prioritize his projects when technical skills are mentioned.
           
-          Stephen is a software engineer. You have access to his profile and projects list below.
+          Stephen is a software engineer. You have access to his profile, projects, LinkedIn data, and Handshake career data below.
           
           Rules:
           1. **Be Conversational**: If the user says "Hi" or "How are you?", reply normally and politely.
-          2. **Personal Inquiries**: If they ask about Stephen's education, background, or interests, use the "About Stephen" section to provide helpful, enthusiastic answers.
-          3. **Project Matching**: If the user asks about specific skills or projects (e.g. "Does he know Java?"), answer them AND provide a list of matching projects using the "---PROJECTS---" delimiter format.
-          4. **Connect**: If they want to talk to him or see his profile, mention his LinkedIn or GitHub links not both and consider mentioning github first provided in the context. A clickable link should be provided.
-          5. **Tone**: Professional, friendly, educational,and enthusiastic.
-          6. **No Repetition**: Do not repeat the same information more than once.
-          7. **Conciseness**: Be concise and resourceful when describing who Stephen is and his projects. Do not ramble.
+          2. **Personal Inquiries**: If they ask about Stephen's education, background, or interests, use the "About Stephen" section and LinkedIn/Handshake data to provide helpful, enthusiastic answers.
+          3. **Professional Experience**: If they ask about work experience, internships, or career history, reference Stephen's LinkedIn experience data. If no experience entries are listed yet, mention he is actively building his professional experience and suggest connecting on LinkedIn.
+          4. **Career Goals & Job Search**: If they ask about what Stephen is looking for (internships, jobs, career goals), use the Handshake data to describe his target roles, industries, and preferences. Mention his Handshake profile if relevant.
+          5. **Skills & Qualifications**: When asked about skills, combine information from LinkedIn skills, Handshake skills, and project technologies to give a comprehensive answer.
+          6. **Project Matching**: If the user asks about specific skills or projects (e.g. "Does he know Java?"), answer them AND provide a list of matching projects using the "---PROJECTS---" delimiter format.
+          7. **Connect**: If they want to talk to him, see his profile, or learn more about his professional background, mention his LinkedIn profile link. For career/job-related connections, also mention Handshake. Always provide clickable links. Mention GitHub for code-related inquiries. Don't list all links at once — pick the most relevant one(s).
+          8. **Tone**: Professional, friendly, educational, and enthusiastic.
+          9. **No Repetition**: Do not repeat the same information more than once.
+          10. **Conciseness**: Be concise and resourceful when describing who Stephen is. Do not ramble.
+          11. **Data Awareness**: If certain profile sections are empty (no experience listed, no certifications, etc.), don't mention them. Focus on what IS available.
           
           Response Format:
            First, provide your conversational response. 
@@ -88,7 +200,7 @@ export default async function handler(req, res) {
           ---PROJECTS---
           Project A, Project B"`
                 },
-                { role: "user", content: `Context:\n${profileContext}\n\nProjects:\n${projectContext}\n\nUser Message: "${userMessage}"` }
+                { role: "user", content: `Context:\n${profileContext}\n\n${linkedInContext}\n\n${handshakeContext}\n\nProjects:\n${projectContext}\n\nUser Message: "${userMessage}"` }
             ],
             stream: true,
         });
