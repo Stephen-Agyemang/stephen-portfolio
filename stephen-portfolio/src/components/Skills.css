@@ -3,7 +3,7 @@
 }
 
 .skills-title {
-  color: #6c9a57ff;
+  color: #444;
   margin: 0;
   text-align: left;
   font-family: 'Courier New', Courier, monospace;
@@ -22,7 +22,7 @@
 }
 
 .category-title {
-  color: #6c9a57ff;
+  color: #444;
   font-size: 1.3rem;
   margin: 0;
   font-weight: 600;
