@@ -3,6 +3,7 @@ import { chatWithAIStream } from '../services/aiService';
 import { FaRobot, FaTimes, FaPaperPlane, FaArrowRight } from 'react-icons/fa';
 import { projects } from '../data/projects';
 
+
 const ProjectDiscovery = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isHovered, setIsHovered] = useState(false);

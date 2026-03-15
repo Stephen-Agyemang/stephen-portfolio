@@ -4,7 +4,7 @@ import { getLinkedInProfile } from "./linkedinProfile.js";
 import { getHandshakeProfile } from "./handshakeProfile.js";
 
 const client = new OpenAI({
-    apiKey: process.env.VITE_OPENAI_API_KEY || process.env.OPENAI_API_KEY,
+    apiKey: import.meta.env.VITE_OPENAI_API_KEY || import.meta.env.OPENAI_API_KEY,
 });
 
 /**
@@ -143,8 +143,8 @@ export default async function handler(req, res) {
             links: {
                 linkedIn: "https://www.linkedin.com/in/stephagyemang",
                 github: "https://github.com/Stephen-Agyemang",
-                handshake: "https://app.joinhandshake.com/profiles/stephen_agyemang",
-                portfolio: "https://stephen-vite.vercel.app"
+                handshake: "https://app.joinhandshake.com/profiles/stephen_agyemang"
+                // portfolio link intentionally omitted for in-portfolio context
             }
         };
 
@@ -156,7 +156,7 @@ export default async function handler(req, res) {
             About Stephen: ${stephenProfile.bio} Education: ${stephenProfile.education}. 
             Origins: ${stephenProfile.background}. 
             Interests: ${stephenProfile.interests.join(", ")}.
-            Links: LinkedIn (${stephenProfile.links.linkedIn}), GitHub (${stephenProfile.links.github}), Handshake (${stephenProfile.links.handshake}), Portfolio (${stephenProfile.links.portfolio})
+            Links: LinkedIn (${stephenProfile.links.linkedIn}), GitHub (${stephenProfile.links.github}), Handshake (${stephenProfile.links.handshake})
         `;
 
         // Build enriched context from LinkedIn and Handshake
@@ -185,7 +185,7 @@ export default async function handler(req, res) {
           4. **Career Goals & Job Search**: If they ask about what Stephen is looking for (internships, jobs, career goals), use the Handshake data to describe his target roles, industries, and preferences. Mention his Handshake profile if relevant.
           5. **Skills & Qualifications**: When asked about skills, combine information from LinkedIn skills, Handshake skills, and project technologies to give a comprehensive answer.
           6. **Project Matching**: If the user asks about specific skills or projects (e.g. "Does he know Java?"), answer them AND provide a list of matching projects using the "---PROJECTS---" delimiter format.
-          7. **Connect**: If they want to talk to him or see his code, mention his GitHub profile link. For career/job-related connections, mention Handshake. Always provide clickable links. Do NOT share Stephen's LinkedIn profile link — it is used only as an internal data source. Don't list all links at once — pick the most relevant one(s).
+          7. **Connect**: If they want to talk to him or see his code, mention his GitHub profile link. For career/job-related connections, mention Handshake. Always provide clickable links. Do NOT share Stephen's LinkedIn profile link — it is used only as an internal data source. Don't list all links at once — pick the most relevant one(s). Do NOT mention the portfolio website if the user is already on the portfolio.
           8. **Tone**: Professional, friendly, educational, and enthusiastic.
           9. **No Repetition**: Do not repeat the same information more than once.
           10. **Conciseness**: Keep responses SHORT — 2-3 sentences max for simple questions, 4-5 for complex ones. Never write paragraphs. Use bullet points if listing multiple things. Be direct and punchy, not verbose. Do not ramble or repeat context the user already knows.
@@ -197,7 +197,7 @@ export default async function handler(req, res) {
           
           Example:
           "I'd love to help! Stephen has several React projects. He also enjoys playing soccer when he's not coding!
-          ---PROJECTS---
+          ---PROJECTS---" },
           Project A, Project B"`
                 },
                 { role: "user", content: `Context:\n${profileContext}\n\n${linkedInContext}\n\n${handshakeContext}\n\nProjects:\n${projectContext}\n\nUser Message: "${userMessage}"` }

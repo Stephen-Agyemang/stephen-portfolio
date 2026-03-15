@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./Skills.css";
 import antigravityIcon from "../assets/antigravity_small.png";
+import useIsMobile from '../hooks/useIsMobile';
 
 const skillCategories = {
   languages: [
@@ -27,14 +28,9 @@ const skillCategories = {
   ]
 };
 
-const Skills = () => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
+const Skills = () => {
+  const isMobile = useIsMobile();
 
   const renderSkillCategory = (title, skills) => (
     <div className="skill-category">

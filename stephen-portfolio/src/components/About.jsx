@@ -1,8 +1,9 @@
 import React from "react";
 import Stephen from "../assets/Stephen.jpg"
+import useIsMobile from '../hooks/useIsMobile';
 
 const About = () => {
-  const isMobile = window.innerWidth < 768;
+  const isMobile = useIsMobile();
 
   return (
     <section

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { generateEmailDrafts } from '../services/aiService';
 import { FaPaperPlane, FaMagic, FaSpinner } from 'react-icons/fa';
+import useIsMobile from '../hooks/useIsMobile';
 
 const EmailDraftAssistant = () => {
     const [intent, setIntent] = useState('');
@@ -39,7 +40,7 @@ const EmailDraftAssistant = () => {
         window.location.href = mailtoLink;
     };
 
-    const isMobile = window.innerWidth < 768;
+    const isMobile = useIsMobile();
 
     return (
         <section id="contact-assistant" style={{

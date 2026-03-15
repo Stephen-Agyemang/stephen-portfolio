@@ -1,8 +1,9 @@
 import { FaGithub, FaLinkedin, FaFileAlt } from "react-icons/fa";
 import "./Hero.css";
+import useIsMobile from '../hooks/useIsMobile';
 
 const Hero = () => {
-    const isMobile = window.innerWidth < 768;
+    const isMobile = useIsMobile();
 
     return (
         <section id="home" className="hero"
@@ -107,7 +108,7 @@ const Hero = () => {
 
                 {/* Resume */}
                 <a
-                    href="https://drive.google.com/file/d/1UooMqd5hwmwFVudWyTW-rt7ZIYRx04Xa/view?usp=sharing"
+                    href="https://drive.google.com/file/d/15o0gqfWL80m80T-5FsWpRTX_KYgar2jC/view?usp=sharing"
                     target="_blank"
                     rel="noopener noreferrer"
                 >

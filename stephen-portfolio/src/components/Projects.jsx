@@ -1,9 +1,10 @@
 import React from "react";
 import { FaArrowRight } from "react-icons/fa";
 import { projects } from "../data/projects";
+import useIsMobile from '../hooks/useIsMobile';
 
 const Projects = () => {
-    const isMobile = window.innerWidth < 768;
+    const isMobile = useIsMobile();
     // Projects data is now imported from ../data/projects.js
 
     return (
