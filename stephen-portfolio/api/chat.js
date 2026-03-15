@@ -3,8 +3,10 @@ import { fetchGithubProjects } from "./githubFetcher.js";
 import { getLinkedInProfile } from "./linkedinProfile.js";
 import { getHandshakeProfile } from "./handshakeProfile.js";
 
+const openAiKey = globalThis.process?.env?.OPENAI_API_KEY || globalThis.process?.env?.VITE_OPENAI_API_KEY;
+
 const client = new OpenAI({
-    apiKey: import.meta.env.VITE_OPENAI_API_KEY || import.meta.env.OPENAI_API_KEY,
+    apiKey: openAiKey,
 });
 
 /**
@@ -118,6 +120,12 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "Message too long" });
     }
 
+    if (!openAiKey) {
+        return res.status(500).json({
+            reply: "Server is missing OPENAI_API_KEY. Add it in Vercel project environment variables."
+        });
+    }
+
     try {
         // Fetch latest projects from GitHub
         const githubProjects = await fetchGithubProjects();
@@ -196,9 +204,9 @@ export default async function handler(req, res) {
           Then, if there are matching projects, add exactly "---PROJECTS---" on a new line followed by a comma-separated list of the exact project names.
           
           Example:
-          "I'd love to help! Stephen has several React projects. He also enjoys playing soccer when he's not coding!
-          ---PROJECTS---" },
-          Project A, Project B"`
+            I'd love to help! Stephen has several React projects. He also enjoys playing soccer when he's not coding!
+            ---PROJECTS---
+            Project A, Project B`
                 },
                 { role: "user", content: `Context:\n${profileContext}\n\n${linkedInContext}\n\n${handshakeContext}\n\nProjects:\n${projectContext}\n\nUser Message: "${userMessage}"` }
             ],
@@ -213,9 +221,20 @@ export default async function handler(req, res) {
         }
         res.end();
     } catch (error) {
+        // Log full error details for debugging
         console.error("AI Error:", error);
+        let errorMsg = "AI is taking a break, try again.";
+        if (error?.status || error?.name === "APIError") {
+            // OpenAI SDK v6 exposes status/message on the thrown error.
+            errorMsg = `OpenAI API Error: ${error.status || 500}`;
+            if (error.message) {
+                errorMsg += ` - ${error.message}`;
+            }
+        } else if (error.message) {
+            errorMsg = error.message;
+        }
         res.status(500).json({
-            reply: "AI is taking a break, try again."
+            reply: errorMsg
         });
     }
 }
