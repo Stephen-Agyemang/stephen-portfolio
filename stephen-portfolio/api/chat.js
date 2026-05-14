@@ -9,6 +9,14 @@ const client = new OpenAI({
     apiKey: openAiKey,
 });
 
+const CONTEXT_CACHE_TTL_MS = 10 * 60 * 1000;
+const MAX_PROJECTS_IN_PROMPT = 25;
+const MAX_DESCRIPTION_CHARS = 220;
+let cachedPromptContext = {
+    value: null,
+    expiresAt: 0,
+};
+
 /**
  * Build a readable context string from the LinkedIn profile data.
  */
@@ -105,6 +113,39 @@ function buildHandshakeContext(profile) {
     return context;
 }
 
+function trimText(text, maxLength) {
+    if (!text || typeof text !== "string") return "";
+    if (text.length <= maxLength) return text;
+    return `${text.slice(0, maxLength - 1)}...`;
+}
+
+function dedupeProjects(projects = []) {
+    const seen = new Set();
+    const deduped = [];
+
+    for (const p of projects) {
+        const name = p?.name?.trim();
+        if (!name) continue;
+        const key = name.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        deduped.push(p);
+    }
+
+    return deduped;
+}
+
+function buildProjectContext(projects) {
+    return projects
+        .slice(0, MAX_PROJECTS_IN_PROMPT)
+        .map((p) => {
+            const desc = trimText(p.description || "", MAX_DESCRIPTION_CHARS);
+            const skills = Array.isArray(p.skills) ? p.skills.slice(0, 10).join(", ") : "";
+            return `Name: ${p.name}, Description: ${desc || "N/A"}, Skills: ${skills || "N/A"}`;
+        })
+        .join("\n---\n");
+}
+
 export default async function handler(req, res) {
     if (req.method !== "POST") {
         return res.status(405).json({ error: "Method not allowed" });
@@ -127,49 +168,53 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Fetch latest projects from GitHub
-        const githubProjects = await fetchGithubProjects();
+        // Reuse expensive static/enriched context between requests to reduce latency.
+        let contextBase = cachedPromptContext.value;
+        if (!contextBase || cachedPromptContext.expiresAt < Date.now()) {
+            const githubProjects = await fetchGithubProjects();
+            const linkedInProfile = getLinkedInProfile();
+            const handshakeProfile = getHandshakeProfile();
 
-        // Merge local projects with GitHub projects, removing duplicates by name
-        const allProjects = [...(localProjects || [])];
-        githubProjects.forEach(ghProject => {
-            if (!allProjects.find(lp => lp.name.toLowerCase() === ghProject.name.toLowerCase())) {
-                allProjects.push(ghProject);
-            }
-        });
+            const stephenProfile = {
+                name: "Stephen Agyemang",
+                education: "Computer Science at DePauw University (3.95 cumulative GPA, 4.0 current semester GPA, Honor Scholar, CodePath Fellow '26)",
+                background: "Ghanaian international student, Sophomore at DePauw University",
+                interests: ["Artificial Intelligence", "Machine Learning", "Mathematics", "Theatre & Acting", "Soccer", "Photography"],
+                bio: "Focuses on building scalable software and exploring the intersections of AI and ML. Multi-disciplinary enthusiast blending logic with creative expression. Minors in Theatre and Mathematics.",
+                links: {
+                    linkedIn: "https://www.linkedin.com/in/stephagyemang",
+                    github: "https://github.com/Stephen-Agyemang",
+                    handshake: "https://app.joinhandshake.com/profiles/stephen_agyemang"
+                    // portfolio link intentionally omitted for in-portfolio context
+                }
+            };
 
-        // Get LinkedIn and Handshake profile data
-        const linkedInProfile = getLinkedInProfile();
-        const handshakeProfile = getHandshakeProfile();
+            const profileContext = `
+                About Stephen: ${stephenProfile.bio} Education: ${stephenProfile.education}. 
+                Origins: ${stephenProfile.background}. 
+                Interests: ${stephenProfile.interests.join(", ")}.
+                Links: LinkedIn (${stephenProfile.links.linkedIn}), GitHub (${stephenProfile.links.github}), Handshake (${stephenProfile.links.handshake})
+            `;
 
-        const stephenProfile = {
-            name: "Stephen Agyemang",
-            education: "Computer Science at DePauw University (3.95 cumulative GPA, 4.0 current semester GPA, Honor Scholar, CodePath Fellow '26)",
-            background: "Ghanaian international student, Sophomore at DePauw University",
-            interests: ["Artificial Intelligence", "Machine Learning", "Mathematics", "Theatre & Acting", "Soccer", "Photography"],
-            bio: "Focuses on building scalable software and exploring the intersections of AI and ML. Multi-disciplinary enthusiast blending logic with creative expression. Minors in Theatre and Mathematics.",
-            links: {
-                linkedIn: "https://www.linkedin.com/in/stephagyemang",
-                github: "https://github.com/Stephen-Agyemang",
-                handshake: "https://app.joinhandshake.com/profiles/stephen_agyemang"
-                // portfolio link intentionally omitted for in-portfolio context
-            }
-        };
+            const linkedInContext = buildLinkedInContext(linkedInProfile);
+            const handshakeContext = buildHandshakeContext(handshakeProfile);
 
-        const projectContext = allProjects.map(p =>
-            `Name: ${p.name}, Description: ${p.description}, Skills: ${p.skills.join(", ")}`
-        ).join("\n---\n");
+            contextBase = {
+                githubProjects,
+                profileContext,
+                linkedInContext,
+                handshakeContext,
+            };
 
-        const profileContext = `
-            About Stephen: ${stephenProfile.bio} Education: ${stephenProfile.education}. 
-            Origins: ${stephenProfile.background}. 
-            Interests: ${stephenProfile.interests.join(", ")}.
-            Links: LinkedIn (${stephenProfile.links.linkedIn}), GitHub (${stephenProfile.links.github}), Handshake (${stephenProfile.links.handshake})
-        `;
+            cachedPromptContext = {
+                value: contextBase,
+                expiresAt: Date.now() + CONTEXT_CACHE_TTL_MS,
+            };
+        }
 
-        // Build enriched context from LinkedIn and Handshake
-        const linkedInContext = buildLinkedInContext(linkedInProfile);
-        const handshakeContext = buildHandshakeContext(handshakeProfile);
+        const allProjects = dedupeProjects([...(localProjects || []), ...(contextBase.githubProjects || [])]);
+
+        const projectContext = buildProjectContext(allProjects);
 
         // Set response headers for streaming 
         res.setHeader("Content-Type", "text/event-stream");
@@ -181,43 +226,45 @@ export default async function handler(req, res) {
             model: "gpt-4o-mini",
             messages: [
                 {
-                    role: "system", content: `You are Stephen Agyemang's personal portfolio AI assistant.
-          Your goal is to chat with visitors, answer questions about Stephen's background, education, interests, professional experience, and career goals — and prioritize his projects when technical skills are mentioned.
-          
-          Stephen is an aspiring software engineer who attends depauw university and Stephen is currently looking for internships. You have access to his profile, projects, LinkedIn data, and Handshake career data below.
-          
+                    role: "system", content: `You are Stephen Agyemang, answering questions about yourself directly on your portfolio.
+          Your goal is to chat with visitors and answer their questions about you, your background, education, interests, professional experience, and career goals — and prioritize your projects when technical skills are mentioned.
+
+          I'm an aspiring software engineer who attends DePauw University and I'm currently an incoming machine learning and deep learning research and an ITAP intern looking for internships. Below is my profile, projects, LinkedIn data, and Handshake career data.
+
           Rules:
           0. **ChatGPT-like Conversation Style**: Sound natural, warm, and human. Use plain language, contractions, and short flowing sentences. Avoid stiff or corporate wording.
           1. **Be Conversational**: If the user says "Hi" or "How are you?", reply normally and politely.
           1b. **Natural Tone Matching**: Match the user's tone and energy. If the user is casual, brief, joking, or dismissive (e.g. "okay whatever"), reply like a real human in 1 short sentence. Avoid robotic assistant phrasing.
-          2. **Personal Inquiries**: If they ask about Stephen's education, background, or interests, use the "About Stephen" section and LinkedIn/Handshake data to provide helpful, enthusiastic answers.
-          3. **Professional Experience**: If they ask about work experience, internships, or career history, reference Stephen's LinkedIn experience data. If no experience entries are listed yet, mention he is actively building his professional experience.
-          4. **Career Goals & Job Search**: If they ask about what Stephen is looking for (internships, jobs, career goals), use the Handshake data to describe his target roles, industries, and preferences. Mention his Handshake profile if relevant.
-          5. **Skills & Qualifications**: When asked about skills, combine information from LinkedIn skills, Handshake skills, and project technologies to give a comprehensive answer.
-          6. **Project Matching**: If the user asks about specific skills or projects (e.g. "Does he know Java?"), answer them AND provide a list of matching projects using the "---PROJECTS---" delimiter format.
+          2. **Personal Inquiries**: If they ask about my education, background, or interests, use the "About Stephen" section and my LinkedIn/Handshake data to provide helpful, enthusiastic answers.
+          3. **Professional Experience**: If they ask about my work experience, internships, or career history, reference my LinkedIn experience data. If no experience entries are listed yet, mention I'm actively building my professional experience.
+          4. **Career Goals & Job Search**: If they ask about what I'm looking for (internships, jobs, career goals), use the Handshake data to describe my target roles, industries, and preferences. Mention my Handshake profile if relevant.
+          5. **Skills & Qualifications**: When asked about skills, combine information from my LinkedIn skills, Handshake skills, and project technologies to give a comprehensive answer.
+          6. **Project Matching**: If the user asks about specific skills or projects (e.g. "Do you know Java?"), answer them AND provide a list of matching projects using the "---PROJECTS---" delimiter format.
           7. **Connect**: Do NOT paste raw URLs or markdown links unless the user explicitly asks for a link. By default, direct users to use the clickable links/buttons already on the page (GitHub, resume, contact, project cards).
           8. **Tone**: Professional, friendly, educational, and enthusiastic.
           9. **No Repetition**: Do not repeat the same information more than once.
           10. **Conciseness**: Keep responses very short. Simple questions: 1-2 sentences max. Complex questions: 3 short sentences max. Never write long paragraphs.
           11. **Data Awareness**: If certain profile sections are empty (no experience listed, no certifications, etc.), don't mention them. Focus on what IS available.
-          12. **Direct Answers First**: Answer the exact question in the first sentence. Example: for "Who is Stephen?" give a one-sentence intro, then optionally one short follow-up sentence.
+          12. **Direct Answers First**: Answer the exact question in the first sentence. Example: for "Who are you?" give a one-sentence intro, then optionally one short follow-up sentence.
           13. **No Generic Assistant Filler**: Avoid lines like "I'm here to help" or "feel free to ask" unless the user explicitly asks for help.
-          14. **When To Be Professional**: Use polished/professional tone only when the user asks about Stephen, his projects, skills, background, career, or contact.
+          14. **When To Be Professional**: Use polished/professional tone only when the user asks about me, my projects, skills, background, career, or contact.
           15. **Low-Intent Messages**: For offhand messages like "okay," "whatever," or "cool," respond briefly and naturally without forcing portfolio info.
           16. **No Forced Follow-ups**: Do not always end with a question. Ask a follow-up only when it clearly helps.
-          17. **On-Site Context Awareness**: Assume the user is already on Stephen's site. Prefer pointing to on-page sections/cards/buttons over external links.
-          
+          17. **On-Site Context Awareness**: Assume the user is already on my site. Prefer pointing to on-page sections/cards/buttons over external links.
+          18. **Priority messaging**: Stop sending any links to projects or anything unless the user explicitly asks for them or mentions a relevant skill. If they do, provide the project name in their prefered format just like you do with their links.
+
           Response Format:
-           First, provide your conversational response. 
+           First, provide your conversational response.
           Then, if there are matching projects, add exactly "---PROJECTS---" on a new line followed by a comma-separated list of the exact project names.
-          
+
           Example:
-            I'd love to help! Stephen has several React projects. He also enjoys playing soccer when he's not coding!
+            I'd love to help! I have several React projects. I also enjoy playing soccer when I'm not coding!
             ---PROJECTS---
             Project A, Project B`
                 },
-                { role: "user", content: `Context:\n${profileContext}\n\n${linkedInContext}\n\n${handshakeContext}\n\nProjects:\n${projectContext}\n\nUser Message: "${userMessage}"` }
+                { role: "user", content: `Context:\n${contextBase.profileContext}\n\n${contextBase.linkedInContext}\n\n${contextBase.handshakeContext}\n\nProjects:\n${projectContext}\n\nUser Message: "${userMessage}"` }
             ],
+            max_tokens: 220,
             stream: true,
         });
 
