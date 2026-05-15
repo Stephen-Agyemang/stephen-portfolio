@@ -10,7 +10,7 @@ const ProjectDiscovery = () => {
     const [scrolled, setScrolled] = useState(false);
     const [query, setQuery] = useState('');
     const [messages, setMessages] = useState([
-        { type: 'bot', content: "Hi! I'm Stephen's AI Assistant. Ask me about his projects or skills!" }
+        { type: 'bot', content: "Hey! Ask me about my projects, skills, or experience or let's just talk!" }
     ]);
     const [loading, setLoading] = useState(false);
     const messagesEndRef = useRef(null);
