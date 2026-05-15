@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import puppeteer from 'puppeteer';
 import path from 'path';
 import fs from 'fs';

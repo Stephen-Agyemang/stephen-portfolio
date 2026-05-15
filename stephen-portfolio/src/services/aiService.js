@@ -13,6 +13,19 @@ export async function chatWithAIStream(userMessage, projects, onChunk) {
     const reader = res.body.getReader();
     const decoder = new TextDecoder("utf-8");
     let done = false;
+    let buffered = "";
+    let lastFlushAt = 0;
+    const FLUSH_INTERVAL_MS = 60;
+
+    const flush = (force = false) => {
+        const now = Date.now();
+        if (!buffered) return;
+        if (!force && now - lastFlushAt < FLUSH_INTERVAL_MS) return;
+
+        onChunk(buffered);
+        buffered = "";
+        lastFlushAt = now;
+    };
 
     while (!done) {
         const { value, done: doneReading } = await reader.read();
@@ -20,9 +33,14 @@ export async function chatWithAIStream(userMessage, projects, onChunk) {
         
         if(value) {
             const chunk = decoder.decode(value);
-            if (chunk) onChunk(chunk); // Call the callback with each chunk
+            if (chunk) {
+                buffered += chunk;
+                flush();
+            }
         }
     }
+
+    flush(true);
 }
 
 export async function generateEmailDrafts(userIntent) {

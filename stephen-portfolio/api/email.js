@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import OpenAI from "openai";
 
 const client = new OpenAI({

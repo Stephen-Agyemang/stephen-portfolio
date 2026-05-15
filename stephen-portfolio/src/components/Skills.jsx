@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import "./Skills.css";
 import antigravityIcon from "../assets/antigravity_small.png";
 import useIsMobile from '../hooks/useIsMobile';
