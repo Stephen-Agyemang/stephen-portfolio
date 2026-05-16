@@ -112,7 +112,12 @@
     gap: 32px;
   }
 
+  .skills-title {
+    color: #ffffff !important;
+  }
+
   .category-title {
+    color: #ffffff !important;
     font-size: 1.1rem;
   }
 

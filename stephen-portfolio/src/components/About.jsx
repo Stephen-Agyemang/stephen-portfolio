@@ -35,7 +35,7 @@ const About = () => {
         <h2 style={{
           fontSize: isMobile ? "2rem" : "3rem",
           marginBottom: "20px",
-          color: "#444",
+          color: isMobile ? "#ffffff" : "#444",
           fontFamily: "'Courier New', Courier, monospace"
         }}>
           About Me

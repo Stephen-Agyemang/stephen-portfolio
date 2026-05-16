@@ -52,7 +52,7 @@ const EmailDraftAssistant = () => {
             <h2 style={{
                 fontSize: isMobile ? "1.8rem" : "2.5rem",
                 marginBottom: "20px",
-                color: isMobile ? "#6c9a57" : "#444",
+                color: isMobile ? "#ffffff" : "#444",
                 fontFamily: "'Courier New', Courier, monospace"
             }}>
                 Email Draft Assistant
