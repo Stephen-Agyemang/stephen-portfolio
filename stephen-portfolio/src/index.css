@@ -73,6 +73,152 @@ button:focus-visible {
   }
 }
 
+:root, :root[data-theme="dark"] {
+  --bg-color: #030712;
+  --text-color: #cbd5e1;
+  --text-title: #ffffff;
+  --card-bg-init: radial-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 0), linear-gradient(135deg, rgba(10, 15, 30, 0.55), rgba(15, 23, 42, 0.65));
+  --card-bg-hover: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 0), linear-gradient(135deg, rgba(10, 15, 30, 0.55), rgba(15, 23, 42, 0.65));
+  --card-border: rgba(255, 255, 255, 0.05);
+  --grid-line-color: rgba(255, 255, 255, 0.015);
+  --ambient-opacity: 1;
+  --telemetry-color: rgba(255, 255, 255, 0.25);
+  --chat-bg: rgba(10, 15, 30, 0.9);
+  --chat-border: rgba(167, 210, 115, 0.25);
+  --chat-header: rgba(167, 210, 115, 0.12);
+  --chat-msg-area: rgba(3, 7, 18, 0.65);
+  --chat-user-bg: rgba(167, 210, 115, 0.15);
+  --chat-user-border: rgba(167, 210, 115, 0.35);
+  --chat-user-text: #c9ec9e;
+  --chat-bot-bg: rgba(255, 255, 255, 0.04);
+  --chat-bot-border: rgba(255, 255, 255, 0.07);
+  --chat-bot-text: #e2e8f0;
+  --chat-input-bg: rgba(3, 7, 18, 0.75);
+  --chat-input-border: rgba(255, 255, 255, 0.08);
+  --chat-form-bg: rgba(10, 15, 30, 0.95);
+  --email-area-bg: rgba(10, 15, 30, 0.55);
+  --email-textarea-bg: rgba(3, 7, 18, 0.6);
+  --email-textarea-border: rgba(255, 255, 255, 0.08);
+  --email-draft-bg: rgba(3, 7, 18, 0.5);
+  --email-draft-border: rgba(255, 255, 255, 0.08);
+  --email-label: #c9ec9e;
+  --footer-text: #64748b;
+  --footer-border: rgba(255, 255, 255, 0.05);
+  
+  /* Hero Theme Variables */
+  --hero-bg: radial-gradient(circle at 20% 20%, rgba(37, 246, 183, 0.08), transparent 30%), radial-gradient(circle at 80% 10%, rgba(8, 153, 231, 0.18), transparent 35%), #060b18;
+  --hero-border: 2.5px solid rgba(167, 210, 115, 0.45);
+  --hero-shadow: 0 15px 45px rgba(167, 210, 115, 0.08), 0 30px 100px rgba(8, 153, 231, 0.06);
+  --hero-text-grey: #8c8c8c;
+  --hero-text-white: #ffffff;
+  --hero-text-green: #6c9a57;
+  --hero-icon-color: #cbd5e1;
+
+  /* Dynamic Multi-Color Project Accents (Dark Theme: Bright Neons) */
+  --color-monica: #a7d273;
+  --color-zork: #ffb300;
+  --color-fridgechef: #f97316;
+  --color-fintracker: #38bdf8;
+  --color-portfolio: #c084fc;
+
+  /* Secondary Button Variables & Mobile App Bg */
+  --btn-secondary-bg: rgba(255, 255, 255, 0.03);
+  --btn-secondary-border: rgba(255, 255, 255, 0.08);
+  --btn-secondary-text: #cbd5e1;
+  --btn-secondary-hover-bg: rgba(255, 255, 255, 0.08);
+  --btn-secondary-hover-text: #ffffff;
+  --btn-secondary-hover-border: rgba(255, 255, 255, 0.15);
+  --app-bg: radial-gradient(circle at 20% 20%, rgba(0, 246, 183, 0.12), transparent 30%),
+            radial-gradient(circle at 80% 10%, rgba(8, 153, 231, 0.22), transparent 35%),
+            radial-gradient(circle at 50% 90%, rgba(0, 246, 183, 0.06), transparent 40%),
+            #030712;
+  --title-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+
+  /* Email Assistant Frosted White Glass Theme Variables (Dark Mode) */
+  --email-glass-bg: rgba(255, 255, 255, 0.08);
+  --email-glass-border: rgba(255, 255, 255, 0.22);
+  --email-glass-label: rgba(255, 255, 255, 0.95);
+  --email-glass-input-bg: rgba(255, 255, 255, 0.05);
+  --email-glass-input-border: rgba(255, 255, 255, 0.15);
+  --email-glass-btn-bg: rgba(255, 255, 255, 0.12);
+  --email-glass-btn-border: rgba(255, 255, 255, 0.3);
+  --email-glass-btn-text: #ffffff;
+  --email-glass-btn-hover: rgba(255, 255, 255, 0.22);
+}
+
+:root[data-theme="light"] {
+  --bg-color: #f8fafc;
+  --text-color: #334155;
+  --text-title: #0f172a;
+  --card-bg-init: radial-gradient(rgba(108, 154, 87, 0.015) 1px, transparent 0), linear-gradient(135deg, rgba(255, 255, 255, 0.75), rgba(241, 245, 249, 0.85));
+  --card-bg-hover: radial-gradient(rgba(108, 154, 87, 0.04) 1px, transparent 0), linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(241, 245, 249, 0.95));
+  --card-border: rgba(108, 154, 87, 0.18);
+  --grid-line-color: rgba(108, 154, 87, 0.025);
+  --ambient-opacity: 0.2;
+  --telemetry-color: rgba(108, 154, 87, 0.6);
+  --chat-bg: rgba(255, 255, 255, 0.95);
+  --chat-border: rgba(108, 154, 87, 0.3);
+  --chat-header: rgba(108, 154, 87, 0.12);
+  --chat-msg-area: #f1f5f9;
+  --chat-user-bg: rgba(108, 154, 87, 0.15);
+  --chat-user-border: rgba(108, 154, 87, 0.35);
+  --chat-user-text: #365314;
+  --chat-bot-bg: #ffffff;
+  --chat-bot-border: rgba(108, 154, 87, 0.2);
+  --chat-bot-text: #334155;
+  --chat-input-bg: #ffffff;
+  --chat-input-border: rgba(108, 154, 87, 0.25);
+  --chat-form-bg: rgba(255, 255, 255, 0.95);
+  --email-area-bg: rgba(255, 255, 255, 0.85);
+  --email-textarea-bg: #ffffff;
+  --email-textarea-border: rgba(108, 154, 87, 0.25);
+  --email-draft-bg: #ffffff;
+  --email-draft-border: rgba(108, 154, 87, 0.2);
+  --email-label: #365314;
+  --footer-text: #475569;
+  --footer-border: rgba(108, 154, 87, 0.15);
+  
+  /* Hero Theme Variables (Light Mode) */
+  --hero-bg: radial-gradient(circle at 20% 20%, rgba(108, 154, 87, 0.05), transparent 30%), radial-gradient(circle at 80% 10%, rgba(56, 189, 248, 0.12), transparent 35%), #f1f5f9;
+  --hero-border: 2.5px solid rgba(108, 154, 87, 0.35);
+  --hero-shadow: 0 15px 40px rgba(108, 154, 87, 0.05), 0 30px 80px rgba(56, 189, 248, 0.04);
+  --hero-text-grey: #64748b;
+  --hero-text-white: #0f172a;
+  --hero-text-green: #3f6212;
+  --hero-icon-color: #475569;
+
+  /* Dynamic Multi-Color Project Accents (Light Theme: Rich High-Contrast Shades) */
+  --color-monica: #3f6212;
+  --color-zork: #b45309;
+  --color-fridgechef: #c2410c;
+  --color-fintracker: #0369a1;
+  --color-portfolio: #6d28d9;
+
+  /* Secondary Button Variables & Mobile App Bg (Light Mode) */
+  --btn-secondary-bg: rgba(15, 23, 42, 0.04);
+  --btn-secondary-border: rgba(15, 23, 42, 0.08);
+  --btn-secondary-text: #334155;
+  --btn-secondary-hover-bg: rgba(15, 23, 42, 0.08);
+  --btn-secondary-hover-text: #0f172a;
+  --btn-secondary-hover-border: rgba(15, 23, 42, 0.15);
+  --app-bg: radial-gradient(circle at 20% 20%, rgba(108, 154, 87, 0.05), transparent 30%),
+            radial-gradient(circle at 80% 10%, rgba(56, 189, 248, 0.12), transparent 35%),
+            radial-gradient(circle at 50% 90%, rgba(108, 154, 87, 0.03), transparent 40%),
+            #f8fafc;
+  --title-shadow: none;
+
+  /* Email Assistant White Glass Theme Variables (Light Mode) */
+  --email-glass-bg: rgba(255, 255, 255, 0.9);
+  --email-glass-border: rgba(15, 23, 42, 0.1);
+  --email-glass-label: #334155;
+  --email-glass-input-bg: #ffffff;
+  --email-glass-input-border: rgba(15, 23, 42, 0.12);
+  --email-glass-btn-bg: rgba(15, 23, 42, 0.04);
+  --email-glass-btn-border: rgba(15, 23, 42, 0.15);
+  --email-glass-btn-text: #0f172a;
+  --email-glass-btn-hover: rgba(15, 23, 42, 0.08);
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -81,5 +227,172 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #f0efec !important;
+  background-color: var(--bg-color) !important;
+  color: var(--text-color);
+  position: relative;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid-line-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line-color) 1px, transparent 1px);
+  background-size: 80px 80px;
+  pointer-events: none;
+  z-index: 0;
+  transition: background-image 0.4s ease;
+}
+
+/* ============================================================
+   GLOBAL CYBER ACCENTS & AMBIENT LIGHT LEAKS
+   ============================================================ */
+
+.ambient-glow-wrapper {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  opacity: var(--ambient-opacity);
+  transition: opacity 0.4s ease;
+}
+
+.ambient-glow-1 {
+  position: absolute;
+  top: 15%;
+  left: -150px;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(167, 210, 115, 0.05) 0%, transparent 70%);
+  filter: blur(90px);
+}
+
+.ambient-glow-2 {
+  position: absolute;
+  top: 45%;
+  right: -200px;
+  width: 700px;
+  height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.05) 0%, transparent 70%);
+  filter: blur(100px);
+}
+
+.ambient-glow-3 {
+  position: absolute;
+  top: 75%;
+  left: -100px;
+  width: 650px;
+  height: 650px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(192, 132, 252, 0.05) 0%, transparent 70%);
+  filter: blur(95px);
+}
+
+
+/* ============================================================
+   CYBER METRICS & TELEMETRY SECTION HEADERS
+   ============================================================ */
+
+.section-telemetry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'DM Mono', 'Courier New', monospace;
+  font-size: 0.72rem;
+  color: var(--telemetry-color);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  transition: color 0.4s ease;
+}
+
+.section-telemetry::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--footer-border), transparent);
+  transition: background 0.4s ease;
+}
+
+.section-title-neon {
+  font-family: 'Courier New', Courier, monospace !important;
+  font-weight: bold;
+  color: var(--text-title);
+  text-shadow: var(--title-shadow);
+  transition: color 0.4s ease, text-shadow 0.4s ease;
+}
+
+/* Custom Scrollbars for High-End Glass Cockpits */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(3, 7, 18, 0.4);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(167, 210, 115, 0.3);
+}
+
+/* Cyber Viewfinder Animations */
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spinReverseSlow {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes blinkLed {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.blink-led {
+  animation: blinkLed 1.8s infinite ease-in-out;
+}
+
+/* ============================================================
+   GLOBAL HIGH-PERFORMANCE INTERACTIVE HOVER SCALING Utility Classes
+   ============================================================ */
+
+.interactive-scale-sm {
+  display: inline-block;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s ease, background-color 0.25s ease, border-color 0.25s ease !important;
+}
+
+.interactive-scale-sm:hover:not(:disabled) {
+  transform: scale(1.05) translateY(-1px) !important;
+}
+
+.interactive-scale-md {
+  display: inline-block;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s ease, background-color 0.25s ease, border-color 0.25s ease !important;
+}
+
+.interactive-scale-md:hover:not(:disabled) {
+  transform: scale(1.08) translateY(-2px) !important;
+}
+
+.interactive-scale-lg {
+  display: inline-block;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s ease, background-color 0.25s ease, border-color 0.25s ease !important;
+}
+
+.interactive-scale-lg:hover:not(:disabled) {
+  transform: scale(1.20) translateY(-3px) !important;
 }

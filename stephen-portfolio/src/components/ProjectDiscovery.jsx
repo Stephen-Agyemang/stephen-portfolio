@@ -102,9 +102,9 @@ const ProjectDiscovery = () => {
     return (
         <>
             {/* Floating Toggle Button */}
-            {/* Floating Toggle Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
+                className="btn-ai-assistant"
                 style={{
                     position: "fixed",
                     bottom: "30px",
@@ -113,25 +113,22 @@ const ProjectDiscovery = () => {
                     height: "60px",
                     padding: isOpen ? "0" : "0 25px",
                     borderRadius: "30px",
-                    background: scrolled || isOpen ? "#a7d273ff" : (isHovered ? "rgba(255, 255, 255, 0.25)" : "rgba(255, 255, 255, 0.1)"),
-                    backdropFilter: scrolled || isOpen ? "none" : "blur(5px)",
-                    WebkitBackdropFilter: scrolled || isOpen ? "none" : "blur(5px)",
-                    boxShadow: scrolled || isOpen ? "0 4px 15px rgba(0,0,0,0.1)" : "0 4px 15px rgba(0,0,0,0.05)",
-                    color: scrolled || isOpen ? "#000" : "white",
-                    border: scrolled || isOpen ? "none" : "none",
+                    background: scrolled || isOpen ? "var(--color-monica)" : "var(--btn-secondary-bg)",
+                    backdropFilter: "blur(8px)",
+                    WebkitBackdropFilter: "blur(8px)",
+                    boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
+                    color: scrolled || isOpen ? "var(--bg-color)" : "var(--text-color)",
+                    border: scrolled || isOpen ? "1px solid var(--color-monica)" : "1px solid var(--btn-secondary-border)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     cursor: "pointer",
                     fontSize: "1rem",
                     fontWeight: "bold",
-                    transition: "all 0.3s ease",
-                    transform: isHovered ? "scale(1.05)" : "scale(1)",
+                    transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
                     zIndex: 1000,
                     outline: 'none'
                 }}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
             >
                 {isOpen ? (
                     <FaTimes style={{ fontSize: "1.5rem" }} />
@@ -151,56 +148,67 @@ const ProjectDiscovery = () => {
                     right: "30px",
                     width: "350px",
                     height: "500px",
-                    background: "rgba(255, 255, 255, 0.7)",
+                    background: "var(--chat-bg)",
                     backdropFilter: "blur(20px)",
                     WebkitBackdropFilter: "blur(20px)",
                     borderRadius: "20px",
-                    boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.1)",
+                    boxShadow: "0 10px 40px rgba(0, 0, 0, 0.18)",
                     display: "flex",
                     flexDirection: "column",
                     zIndex: 1000,
                     overflow: "hidden",
-                    border: "1px solid rgba(255, 255, 255, 0.4)"
+                    border: "1px solid var(--chat-border)",
+                    transition: "all 0.4s ease"
                 }}>
                     {/* Header */}
                     <div style={{
                         padding: "15px 20px",
-                        background: "#c9ec9e",
-                        color: "#000",
+                        background: "var(--chat-header)",
+                        color: "var(--chat-user-text)",
                         fontWeight: "bold",
                         display: "flex",
                         alignItems: "center",
-                        gap: "10px"
+                        gap: "10px",
+                        borderBottom: "1px solid var(--chat-border)",
+                        fontFamily: "'Courier New', Courier, monospace",
+                        letterSpacing: "0.5px"
                     }}>
-                        <FaRobot /> AI Assistant
+                        <FaRobot className="blink-led" style={{ color: "var(--chat-user-text)" }} /> AI COCKPIT ASSISTANT
                     </div>
 
                     {/* Messages Area */}
-                    <div style={{
-                        flex: 1,
-                        padding: "20px",
-                        overflowY: "auto",
-                        background: "#f9f9f9",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "15px"
-                    }}>
+                    <div 
+                        className="custom-scrollbar"
+                        style={{
+                            flex: 1,
+                            padding: "20px",
+                            overflowY: "auto",
+                            background: "var(--chat-msg-area)",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "15px",
+                            transition: "background 0.4s ease"
+                        }}
+                    >
                         {messages.map((msg, idx) => (
                             <div key={idx} style={{
                                 alignSelf: msg.type === 'user' ? "flex-end" : "flex-start",
-                                maxWidth: "80%",
+                                maxWidth: "85%",
                             }}>
                                 <div style={{
-                                    padding: "12px 16px",
+                                    padding: "11px 15px",
                                     borderRadius: "15px",
-                                    background: msg.type === 'user' ? "#c9ec9e" : "white",
-                                    color: msg.type === 'user' ? "#000" : "#333",
-                                    boxShadow: msg.type === 'bot' ? "0 2px 5px rgba(0,0,0,0.05)" : "none",
+                                    background: msg.type === 'user' ? "var(--chat-user-bg)" : "var(--chat-bot-bg)",
+                                    color: msg.type === 'user' ? "var(--chat-user-text)" : "var(--chat-bot-text)",
+                                    border: msg.type === 'user' ? "1px solid var(--chat-user-border)" : "1px solid var(--chat-bot-border)",
+                                    boxShadow: msg.type === 'user' ? "0 0 12px rgba(167, 210, 115, 0.05)" : "none",
                                     borderBottomRightRadius: msg.type === 'user' ? "4px" : "15px",
                                     borderBottomLeftRadius: msg.type === 'bot' ? "4px" : "15px",
                                     fontSize: "0.82rem",
                                     lineHeight: "1.45",
-                                    wordBreak: "break-word"
+                                    wordBreak: "break-word",
+                                    fontFamily: msg.type === 'bot' ? "'Inter', sans-serif" : "'Courier New', Courier, monospace",
+                                    transition: "all 0.3s ease"
                                 }}>
                                     {msg.content}
                                 </div>
@@ -214,25 +222,26 @@ const ProjectDiscovery = () => {
                                                 href={p.link}
                                                 target="_blank"
                                                 rel="noreferrer"
+                                                className="interactive-scale-sm"
                                                 style={{
                                                     display: "block",
                                                     padding: "10px",
-                                                    background: "white",
-                                                    borderRadius: "8px",
-                                                    border: "1px solid #ddd",
+                                                    background: "var(--chat-bot-bg)",
+                                                    borderRadius: "10px",
+                                                    border: "1px solid var(--chat-border)",
                                                     textDecoration: "none",
-                                                    color: "#333",
-                                                    fontSize: "0.9rem",
+                                                    color: "var(--chat-bot-text)",
+                                                    fontSize: "0.85rem",
                                                     transition: "background 0.2s"
                                                 }}
-                                                onMouseOver={(e) => e.currentTarget.style.background = "#f0f8f4"}
-                                                onMouseOut={(e) => e.currentTarget.style.background = "white"}
+                                                onMouseOver={(e) => e.currentTarget.style.background = "var(--chat-header)"}
+                                                onMouseOut={(e) => e.currentTarget.style.background = "var(--chat-bot-bg)"}
                                             >
-                                                <div style={{ fontWeight: "bold", color: "#6cad45", marginBottom: "4px" }}>
+                                                <div style={{ fontWeight: "bold", color: "var(--chat-user-text)", marginBottom: "4px" }}>
                                                     {p.name}
                                                 </div>
-                                                <div style={{ fontSize: "0.8rem", color: "#666" }}>
-                                                    View Code <FaArrowRight style={{ fontSize: "0.7rem", verticalAlign: "middle" }} />
+                                                <div style={{ fontSize: "0.75rem", color: "var(--text-color)", display: "flex", alignItems: "center", gap: "4px" }}>
+                                                    View Code <FaArrowRight style={{ fontSize: "0.65rem" }} />
                                                 </div>
                                             </a>
                                         ))}
@@ -241,8 +250,8 @@ const ProjectDiscovery = () => {
                             </div>
                         ))}
                         {loading && (
-                            <div style={{ alignSelf: "flex-start", color: "#888", fontSize: "0.8rem", marginLeft: "10px" }}>
-                                Typing...
+                            <div style={{ alignSelf: "flex-start", color: "var(--chat-user-text)", fontSize: "0.78rem", marginLeft: "10px", fontFamily: "'Courier New', Courier, monospace" }} className="blink-led">
+                                SEC_AI // Thinking...
                             </div>
                         )}
                         <div ref={messagesEndRef} />
@@ -251,8 +260,8 @@ const ProjectDiscovery = () => {
                     {/* Input Area */}
                     <form onSubmit={handleSearch} style={{
                         padding: "15px",
-                        background: "white",
-                        borderTop: "1px solid #eee",
+                        background: "var(--chat-form-bg)",
+                        borderTop: "1px solid var(--chat-border)",
                         display: "flex",
                         gap: "10px"
                     }}>
@@ -260,52 +269,69 @@ const ProjectDiscovery = () => {
                             type="text"
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
-                            placeholder="Ask about projects, skills, or background..."
+                            placeholder="Ask about projects, skills..."
                             style={{
                                 flex: 1,
                                 padding: "10px 15px",
                                 borderRadius: "20px",
-                                border: "1px solid #ddd",
+                                border: "1px solid var(--chat-input-border)",
+                                background: "var(--chat-input-bg)",
+                                color: "var(--text-title)",
                                 outline: "none",
-                                fontSize: "0.85rem"
+                                fontSize: "0.85rem",
+                                fontFamily: "'Inter', sans-serif",
+                                transition: "all 0.25s ease"
                             }}
+                            onFocus={e => e.target.style.borderColor = "var(--chat-user-text)"}
+                            onBlur={e => e.target.style.borderColor = "var(--chat-input-border)"}
                         />
                         <button
                             type="submit"
                             disabled={!query.trim()}
+                            className="interactive-scale-sm"
                             style={{
-                                background: !query.trim() ? "#e0e0e0" : "#c9ec9e",
-                                color: !query.trim() ? "#aaa" : "#000",
+                                background: !query.trim() ? "var(--chat-border)" : "var(--chat-user-text)",
+                                color: "var(--bg-color)",
                                 border: "none",
                                 borderRadius: "12px",
                                 width: "54px",
-                                height: "48px",
+                                height: "40px",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
                                 cursor: !query.trim() ? "not-allowed" : "pointer",
                                 transition: "all 0.2s ease",
-                                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                                boxShadow: "none",
                                 outline: 'none'
                             }}
                             onMouseOver={e => {
                                 if (query.trim()) {
-                                    e.currentTarget.style.background = "#b8db8d";
-                                    e.currentTarget.style.transform = "translateX(3px)";
+                                    e.currentTarget.style.filter = "brightness(0.9)";
                                 }
                             }}
                             onMouseOut={e => {
                                 if (query.trim()) {
-                                    e.currentTarget.style.background = "#c9ec9e";
-                                    e.currentTarget.style.transform = "translateX(0)";
+                                    e.currentTarget.style.filter = "brightness(1)";
                                 }
                             }}
                         >
-                            <FaArrowRight size={26} />
+                            <FaArrowRight size={20} />
                         </button>
                     </form>
                 </div>
             )}
+            <style>{`
+                .btn-ai-assistant {
+                    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                }
+                .btn-ai-assistant:hover {
+                    transform: scale(1.08) translateY(-2px) !important;
+                    background: var(--color-monica) !important;
+                    color: var(--bg-color) !important;
+                    border-color: var(--color-monica) !important;
+                    box-shadow: 0 12px 35px rgba(167, 210, 115, 0.3) !important;
+                }
+            `}</style>
         </>
     );
 };

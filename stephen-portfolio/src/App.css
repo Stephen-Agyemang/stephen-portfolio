@@ -24,9 +24,6 @@ html {
   /* Mobile specific adjustments if needed */
 
   .app-container {
-    background: radial-gradient(circle at 20% 20%, rgba(0, 255, 180, 0.12), transparent 30%),
-      radial-gradient(circle at 80% 10%, rgba(8, 153, 231, 0.22), transparent 35%),
-      radial-gradient(circle at 50% 90%, rgba(0, 255, 180, 0.06), transparent 40%),
-      #0a0e1a !important;
+    background: var(--app-bg) !important;
   }
 }

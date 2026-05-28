@@ -17,25 +17,111 @@ const About = () => {
         flexWrap: "wrap",
       }}
     >
-      {/* Picture */}
-      <img
-        src={Stephen}
-        alt="Stephen Agyemang"
-        fetchPriority="high"
-        style={{
-          width: isMobile ? "300px" : "400px",
-          height: isMobile ? "280px" : "350px",
+      {/* Picture wrapped in a glowing cyber viewport frame */}
+      <div style={{
+        position: "relative",
+        width: isMobile ? "280px" : "340px",
+        height: isMobile ? "280px" : "340px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 2,
+        margin: "10px 0"
+      }}>
+        {/* Reticle Brackets */}
+        <div style={{
+          position: "absolute",
+          inset: "-8px",
+          border: "1.5px solid var(--card-border)",
           borderRadius: "100%",
-          objectFit: "cover",
-        }}
-      />
+          pointerEvents: "none",
+          animation: "spinSlow 45s linear infinite",
+          borderDasharray: "20 40 10 20",
+        }} />
+        <div style={{
+          position: "absolute",
+          inset: "-16px",
+          border: "1px dashed rgba(56, 189, 248, 0.2)",
+          borderRadius: "100%",
+          pointerEvents: "none",
+          animation: "spinReverseSlow 60s linear infinite",
+        }} />
+        {/* Viewfinder Target corner ticks */}
+        <div style={{
+          position: "absolute",
+          top: "-5px",
+          left: "-5px",
+          width: "15px",
+          height: "15px",
+          borderTop: "3px solid var(--email-label)",
+          borderLeft: "3px solid var(--email-label)",
+        }} />
+        <div style={{
+          position: "absolute",
+          top: "-5px",
+          right: "-5px",
+          width: "15px",
+          height: "15px",
+          borderTop: "3px solid var(--email-label)",
+          borderRight: "3px solid var(--email-label)",
+        }} />
+        <div style={{
+          position: "absolute",
+          bottom: "-5px",
+          left: "-5px",
+          width: "15px",
+          height: "15px",
+          borderBottom: "3px solid var(--email-label)",
+          borderLeft: "3px solid var(--email-label)",
+        }} />
+        <div style={{
+          position: "absolute",
+          bottom: "-5px",
+          right: "-5px",
+          width: "15px",
+          height: "15px",
+          borderBottom: "3px solid var(--email-label)",
+          borderRight: "3px solid var(--email-label)",
+        }} />
+        {/* Telemetry coordinate label */}
+        <div style={{
+          position: "absolute",
+          bottom: "12px",
+          right: "12px",
+          fontFamily: "'Courier New', Courier, monospace",
+          fontSize: "0.6rem",
+          background: "var(--chat-input-bg)",
+          color: "var(--email-label)",
+          padding: "2px 6px",
+          borderRadius: "4px",
+          border: "1px solid var(--card-border)",
+          fontWeight: "bold",
+          zIndex: 2,
+          letterSpacing: "0.5px"
+        }}>
+          TRC_LOC // 41.52° N
+        </div>
+        <img
+          src={Stephen}
+          alt="Stephen Agyemang"
+          fetchPriority="high"
+          style={{
+            width: "100%",
+            height: "100%",
+            borderRadius: "100%",
+            objectFit: "cover",
+            border: "2px solid var(--card-border)",
+            boxShadow: "0 0 25px var(--card-border)",
+          }}
+        />
+      </div>
 
       {/* About Text */}
-      <div style={{ maxWidth: isMobile ? "100%" : "600px", textAlign: "left" }}>
-        <h2 style={{
+      <div style={{ maxWidth: isMobile ? "100%" : "600px", textAlign: "left", zIndex: 2 }}>
+        <div className="section-telemetry">[ SEC_01 // USER_INFO ]</div>
+        <h2 className="section-title-neon" style={{
           fontSize: isMobile ? "2rem" : "3rem",
           marginBottom: "20px",
-          color: isMobile ? "#ffffff" : "#444",
           fontFamily: "'Courier New', Courier, monospace"
         }}>
           About Me
@@ -43,26 +129,28 @@ const About = () => {
         <p style={{
           fontSize: isMobile ? "1rem" : "1.2rem",
           lineHeight: "1.6",
-          color: isMobile ? "#e5fff7" : "#444",
+          color: "var(--text-color)",
           fontFamily: "'Inter', system-ui, sans-serif"
         }}>
           I am a Ghanaian Honor Scholar at DePauw University, pursuing a degree
           in Computer Science. As an Honor Scholar, I focus on building
-          software and exploring the intersections of ethical AI and Machine Learning.
+          highly scalable backend systems and exploring the cutting-edge intersections
+          of Machine Learning, Deep Learning, and AI Research. I am driven by the challenge
+          of designing high-performance distributed architectures and cloud solutions.
         </p>
 
         <p style={{
           fontSize: isMobile ? "1rem" : "1.2rem",
           lineHeight: "1.6",
-          color: isMobile ? "#e5fff7" : "#444",
+          color: "var(--text-color)",
           fontFamily: "'Inter', system-ui, sans-serif"
         }}>
-          My technical toolkit includes Java, Python, and Git, with a deep
-          interest in optimizing data structures and algorithms. Beyond the terminal,
+          My technical toolkit includes Java, Python, Git, and cloud services, with a deep
+          interest in optimizing data structures, algorithms, and automated workflows. Beyond the terminal,
           I am a multi-disciplinary enthusiast blending the logic of Mathematics with
           the creative expression of Theatre and Acting. Whether I am collaborating on
-          a soccer pitch or building strong technical skills, I thrive 
-          in environments that challenge my problem-solving and teamwork skills.
+          the soccer pitch or building robust engineering pipelines, I thrive 
+          in fast-paced environments that challenge my problem-solving and teamwork skills.
         </p>
       </div>
     </section>

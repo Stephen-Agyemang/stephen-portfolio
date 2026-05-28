@@ -10,8 +10,11 @@ const Footer = () => {
       style={{
         padding: isMobile ? "6px 10px" : "8px 15px",
         textAlign: "center",
-        borderTop: isMobile ? "1px solid rgba(74, 124, 89, 0.5)" : "1px solid rgba(108, 154, 87, 0.3)",
+        borderTop: "1px solid var(--footer-border)",
         marginTop: isMobile ? "65px" : "75px",
+        position: "relative",
+        zIndex: 2,
+        transition: "border-top 0.4s ease"
       }}
     >
       {/* Social Links */}
@@ -29,23 +32,9 @@ const Footer = () => {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="LinkedIn"
-          style={{ textDecoration: "none" }}
+          className="footer-social-link"
         >
-          <FaLinkedin
-            style={{
-              fontSize: "1.5rem",
-              color: "#6c9a57ff",
-              transition: "transform 0.3s, color 0.3s",
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.transform = "scale(1.2)";
-              e.currentTarget.style.color = "rgb(8, 124, 186)";
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.transform = "scale(1)";
-              e.currentTarget.style.color = "#6c9a57ff";
-            }}
-          />
+          <FaLinkedin className="footer-icon-linkedin" />
         </a>
 
         <a
@@ -53,45 +42,17 @@ const Footer = () => {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="GitHub"
-          style={{ textDecoration: "none" }}
+          className="footer-social-link"
         >
-          <FaGithub
-            style={{
-              fontSize: "1.5rem",
-              color: "#6c9a57ff",
-              transition: "transform 0.3s, color 0.3s",
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.transform = "scale(1.2)";
-              e.currentTarget.style.color = "rgb(0, 0, 0)";
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.transform = "scale(1)";
-              e.currentTarget.style.color = "#6c9a57ff";
-            }}
-          />
+          <FaGithub className="footer-icon-github" />
         </a>
 
         <a
           href="mailto:agyemangstephen2580@gmail.com"
           aria-label="Email"
-          style={{ textDecoration: "none" }}
+          className="footer-social-link"
         >
-          <FaEnvelope
-            style={{
-              fontSize: "1.5rem",
-              color: "#6c9a57ff",
-              transition: "transform 0.3s, color 0.3s",
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.transform = "scale(1.2)";
-              e.currentTarget.style.color = "rgb(201, 201, 201)";
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.transform = "scale(1)";
-              e.currentTarget.style.color = "#6c9a57ff";
-            }}
-          />
+          <FaEnvelope className="footer-icon-envelope" />
         </a>
       </div>
 
@@ -100,7 +61,8 @@ const Footer = () => {
         style={{
           margin: "6px 0 0 0",
           fontSize: isMobile ? "0.8rem" : "0.9rem",
-          color: isMobile ? "#e5fff7" : "#444",
+          color: "var(--footer-text)",
+          transition: "color 0.4s ease"
         }}
       >
         © {currentYear} Stephen B. Agyemang. All rights reserved.
@@ -110,11 +72,47 @@ const Footer = () => {
         style={{
           margin: "3px 0 0 0",
           fontSize: isMobile ? "0.75rem" : "0.85rem",
-          color: isMobile ? "#e5fff7" : "#444",
+          color: "var(--footer-text)",
+          transition: "color 0.4s ease"
         }}
       >
         Built with React & Vite
       </p>
+
+      <style>{`
+        .footer-social-link {
+          display: inline-block !important;
+          text-decoration: none;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .footer-social-link:hover {
+          transform: scale(1.25) translateY(-3px) !important;
+        }
+        .footer-icon-linkedin {
+          font-size: 1.5rem;
+          color: var(--color-monica);
+          transition: color 0.3s ease !important;
+        }
+        .footer-social-link:hover .footer-icon-linkedin {
+          color: #0077b5 !important;
+        }
+        .footer-icon-github {
+          font-size: 1.5rem;
+          color: var(--color-monica);
+          transition: color 0.3s ease !important;
+        }
+        .footer-social-link:hover .footer-icon-github {
+          color: var(--text-title) !important;
+        }
+        .footer-icon-envelope {
+          font-size: 1.5rem;
+          color: var(--color-monica);
+          transition: color 0.3s ease !important;
+        }
+        .footer-social-link:hover .footer-icon-envelope {
+          color: #ff5e5e !important;
+        }
+      `}</style>
     </footer>
   );
 };

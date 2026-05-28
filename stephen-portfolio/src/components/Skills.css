@@ -1,142 +1,274 @@
+/* ============================================================
+   Stephen's "Graphy Look" Interactive Skills Section Styles
+   ============================================================ */
+
 .skills {
   scroll-margin-top: 80px;
+  position: relative;
+  overflow: hidden;
 }
 
 .skills-title {
-  color: #444;
+  color: #ffffff;
   margin: 0;
   text-align: left;
   font-family: 'Courier New', Courier, monospace;
 }
 
-.skills-container {
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
+/* Container for the Graph Board */
+.graph-board-container {
+  width: 100%;
+  height: 500px;
+  background: var(--bg-color);
+  border: 1.5px solid var(--card-border);
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.18);
+  margin-top: 30px;
+  transition: background 0.4s ease, border 0.4s ease, box-shadow 0.4s ease;
 }
 
-.skill-category {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+/* Glowing background grid */
+.graph-board-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid-line-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line-color) 1px, transparent 1px);
+  background-size: 50px 50px;
+  opacity: 0.7;
+  pointer-events: none;
+  transition: background-image 0.4s ease;
 }
 
-.category-title {
-  color: #444;
-  font-size: 1.3rem;
-  margin: 0;
+/* SVG link lines overlay */
+.graph-svg-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.graph-link-line {
+  stroke: var(--card-border);
+  stroke-width: 1.5;
+  transition: stroke 0.3s ease, stroke-width 0.3s ease;
+}
+
+.graph-link-line.active {
+  stroke: var(--link-color, #c9ec9e);
+  stroke-width: 3.5;
+  filter: drop-shadow(0 0 8px var(--link-color, #c9ec9e));
+  opacity: 0.95;
+}
+
+.graph-link-line.dimmed {
+  opacity: 0.15;
+}
+
+/* Glassmorphic Nodes */
+.graph-node {
+  position: absolute;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  user-select: none;
+  z-index: 2;
+  transition: opacity 0.3s ease, transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), background 0.4s ease, border 0.4s ease;
+  transform: translate(-50%, -50%);
+  background: var(--card-bg-init);
+  border: 1.5px solid var(--card-border);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.graph-node:active {
+  cursor: grabbing;
+}
+
+.graph-node.project-node {
+  width: 92px;
+  height: 92px;
+  border-width: 2px;
+  background: var(--card-bg-hover);
+  font-weight: bold;
+}
+
+/* Custom glowing colored nodes on hover */
+.graph-node.active {
+  border-color: var(--node-color, #ffb300);
+  box-shadow: 0 0 25px var(--node-color, #ffb300);
+  transform: translate(-50%, -50%) scale(1.1);
+  z-index: 10;
+}
+
+.graph-node.dimmed {
+  opacity: 0.25;
+}
+
+.graph-node-icon {
+  font-size: 1.6rem;
+  margin-bottom: 4px;
+}
+
+.graph-node.project-node .graph-node-icon {
+  font-size: 1.8rem;
+  color: var(--node-color, #ffb300);
+}
+
+.graph-node-label {
+  font-size: 0.68rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--text-color);
+  text-align: center;
   font-weight: 600;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.4s ease;
+}
+
+.graph-node.project-node .graph-node-label {
+  font-size: 0.72rem;
+  color: var(--text-title);
+  letter-spacing: 0.2px;
+  transition: color 0.4s ease;
+}
+
+/* Floating Status tags (Real-world applied context) */
+.graph-status-tag {
+  position: absolute;
+  top: -8px;
+  background: var(--node-color, #ffb300);
+  color: #000;
+  font-size: 0.55rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 8px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  opacity: 0.9;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  pointer-events: none;
+}
+
+/* Instructions card overlay */
+.graph-instructions-card {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  background: rgba(10, 15, 30, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.6);
+  z-index: 5;
+  pointer-events: none;
   font-family: 'Courier New', Courier, monospace;
 }
 
-.skills-grid {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: flex-start;
-  align-items: stretch;
-}
-
-.skill-card {
-  flex: 0 1 120px;
-  background: rgba(10, 14, 26, 0.04);
-  border: 1px solid #444;
-  border-radius: 10px;
-  padding: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease, border-color 180ms ease;
-  backdrop-filter: saturate(140%) blur(2px);
-}
-
-.skill-card:hover,
-.skill-card:focus-visible {
-  transform: scale(1.1);
-  outline: none;
-  background: rgba(125, 125, 125, 0.15);
-  border-color: #515151;
-}
-
-.skill-card i {
-  line-height: 1;
-}
-
-.skill-card .devicon-github-original {
-  color: #ffffff;
-  filter: brightness(1.2);
-}
-
-.skill-label {
-  font-size: 0.9rem;
-  font-family: 'Inter', system-ui, sans-serif;
-  color: #444;
-}
-
-.skill-card:hover .skill-label,
-.skill-card:focus-visible .skill-label {
-  color: #444;
-}
-
-.skill-link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .skill-card {
-    transition: none;
-  }
-
-  .skill-card:hover,
-  .skill-card:focus-visible {
-    transform: none;
-  }
-}
-
+/* Mobile responsive fallback: switches to clean vertical list */
 @media (max-width: 768px) {
-  .skills-container {
-    gap: 32px;
+  .graph-board-container {
+    height: auto;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    overflow: visible;
+  }
+  
+  .graph-board-container::before {
+    display: none;
   }
 
-  .skills-title {
-    color: #ffffff !important;
+  .graph-svg-overlay {
+    display: none;
   }
 
-  .category-title {
-    color: #ffffff !important;
+  .skills-mobile-deck {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    margin-top: 20px;
+    z-index: 2;
+    position: relative;
+  }
+
+  .skills-mobile-category {
+    background: var(--card-bg-init);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    transition: background 0.4s ease, border 0.4s ease;
+  }
+
+  .skills-mobile-category h3 {
+    margin: 0 0 12px;
     font-size: 1.1rem;
+    color: var(--color-monica);
+    font-family: 'Courier New', Courier, monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1.5px solid var(--card-border);
+    padding-bottom: 6px;
+    transition: color 0.4s ease, border-bottom 0.4s ease;
   }
 
-  .skills-grid {
-    display: grid !important;
+  .skills-mobile-grid {
+    display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 8px !important;
+    gap: 10px;
   }
 
-  .skill-card {
-    flex: none;
-    padding: 10px 8px;
-    gap: 6px;
-    background: rgba(0, 255, 180, 0.06);
-    border: 1px solid #4a7c59;
+  .skills-mobile-card {
+    background: var(--btn-secondary-bg);
+    border: 1px solid var(--btn-secondary-border);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
   }
 
-  .skill-label {
-    color: #e5fff7;
-    font-size: 0.75rem;
+  .skills-mobile-card:hover {
+    border-color: var(--color-monica);
+    box-shadow: 0 0 15px rgba(167, 210, 115, 0.1);
+  }
+
+  .skills-mobile-card-icon {
+    font-size: 1.4rem;
+  }
+
+  .skills-mobile-card-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-color);
+    transition: color 0.4s ease;
+  }
+
+  .skills-mobile-card-status {
+    font-size: 0.52rem;
+    color: var(--color-monica);
+    font-family: 'Courier New', Courier, monospace;
+    display: block;
+    margin-top: 1px;
+    opacity: 0.85;
+    transition: color 0.4s ease;
   }
 }
