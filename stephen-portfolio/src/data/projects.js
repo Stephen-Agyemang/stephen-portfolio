@@ -19,10 +19,10 @@ export const projects = [
     },
     {
         id: "fridgechef",
-        name: "FridgeChef (FridgeJam)",
+        name: "FridgeJam",
         tagline: "Multimodal AI Leftovers Recipe Scanner",
         description: "An interactive, AI-powered web app built for the GDG Coding Jam that transforms random fridge leftovers into personalized recipes. Leverages gemini-2.5-flash for real-time multimodal photo analysis, offering custom chef personalities, detailed macronutrient trackers, cozy mini-games, and dynamic cookbook PDF exporters.",
-        link: "https://github.com/Stephen-Agyemang/FridgeChef",
+        link: "https://github.com/Stephen-Agyemang/FridgeJam",
         liveUrl: "https://fridgejam.web.app",
         skills: ["Gemini AI", "FastAPI", "Python", "HTML5", "CSS3", "JavaScript", "Docker", "Google Cloud Run", "Serverless", "CORS-free"],
         demoType: "chef-assistant"
