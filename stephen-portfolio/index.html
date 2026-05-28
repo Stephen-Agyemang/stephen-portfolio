@@ -20,8 +20,17 @@
     <meta name="twitter:title" content="Stephen Agyemang | Software Engineer" />
     <meta name="twitter:description" content="Explore my portfolio featuring AI-powered apps, web development projects, and software engineering expertise." />
     <meta name="twitter:image" content="https://stephens-portfolio.vercel.app/og-image.png" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.15.1/devicon.min.css">
+    <!-- Preconnect CDNs for ultra-low latency resource loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+
+    <!-- Load Inter (Core UI) and DM Mono (HUD Telemetry) fonts in parallel -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Non-blocking Devicons stylesheet loading -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.15.1/devicon.min.css" media="print" onload="this.media='all'">
+    
     <title>Stephen Agyemang | Portfolio</title>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-YM0S6YT9E6"></script>
