@@ -13,7 +13,7 @@ const Projects = () => {
         monica: "var(--color-monica)",
         zork: "var(--color-zork)",
         fridgechef: "var(--color-fridgechef)",
-        fintracker: "var(--color-fintracker)",
+        // fintracker: "var(--color-fintracker)",
         portfolio: "var(--color-portfolio)"
     };
 

@@ -27,6 +27,7 @@ export const projects = [
         skills: ["Gemini AI", "FastAPI", "Python", "HTML5", "CSS3", "JavaScript", "Docker", "Google Cloud Run", "Serverless", "CORS-free"],
         demoType: "chef-assistant"
     },
+    /*
     {
         id: "fintracker",
         name: "FinTracker",
@@ -36,6 +37,7 @@ export const projects = [
         skills: ["FastAPI", "Python 3", "Pydantic", "Tailwind CSS", "Chart.js", "CLI", "Data Management", "AI Advisor"],
         demoType: "financial-ledger"
     },
+    */
     {
         id: "portfolio",
         name: "Portfolio Website",

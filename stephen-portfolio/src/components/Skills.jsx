@@ -13,7 +13,7 @@ const initialNodes = [
   { id: "monica", label: "MoNiCa.Ai", isProject: true, x: 220, y: 160, color: "#a7d273", status: "Flagship AI", icon: "FaVideo" },
   { id: "zork", label: "Zork v2", isProject: true, x: 500, y: 120, color: "#ffb300", status: "Cockpit HUD", icon: "FaGamepad" },
   { id: "fridgechef", label: "FridgeChef", isProject: true, x: 780, y: 180, color: "#f97316", status: "GDG Jam Win", icon: "FaUtensils" },
-  { id: "fintracker", label: "FinTracker", isProject: true, x: 320, y: 380, color: "#38bdf8", status: "CLI & Web", icon: "FaChartLine" },
+  // { id: "fintracker", label: "FinTracker", isProject: true, x: 320, y: 380, color: "#38bdf8", status: "CLI & Web", icon: "FaChartLine" },
   { id: "portfolio", label: "Portfolio", isProject: true, x: 620, y: 390, color: "#c084fc", status: "AI Assistant", icon: "FaPalette" },
 
   // Skill Nodes
@@ -50,9 +50,11 @@ const initialLinks = [
   { source: "fridgechef", target: "python" },
   { source: "fridgechef", target: "docker" },
   
+  /*
   { source: "fintracker", target: "fastapi" },
   { source: "fintracker", target: "python" },
   { source: "fintracker", target: "react" },
+  */
   
   { source: "portfolio", target: "react" },
   { source: "portfolio", target: "git" }
