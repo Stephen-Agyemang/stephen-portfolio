@@ -1,6 +1,6 @@
 # stephen-portfolio
 
-React + Vite frontend for [stephens-portfolio.vercel.app](https://stephens-portfolio.vercel.app).
+React + Vite frontend for [stephen-vite.vercel.app](https://stephen-vite.vercel.app).
 
 ## Dev
 

@@ -2,7 +2,7 @@
 
 Personal portfolio website built with **React 19** and **Vite 7**, deployed on Vercel.
 
-**Live site:** [stephens-portfolio.vercel.app](https://stephens-portfolio.vercel.app)
+**Live site:** [stephen-vite.vercel.app](https://stephen-vite.vercel.app)
 
 ## Features
 
