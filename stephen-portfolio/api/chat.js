@@ -23,8 +23,8 @@ let cachedPromptContext = {
 function buildLinkedInContext(profile) {
     let context = `\n--- LinkedIn Profile ---\n`;
     context += `Headline: ${profile.headline}\n`;
+    context += `Stats: ${profile.stats}\n`;
     context += `Summary: ${profile.summary}\n`;
-    context += `Profile URL: ${profile.profileUrl}\n`;
 
     if (profile.workExperience?.length > 0) {
         context += `\nWork Experience:\n`;
@@ -34,23 +34,41 @@ function buildLinkedInContext(profile) {
         });
     }
 
-    if (profile.education.length > 0) {
+    if (profile.education?.length > 0) {
         context += `\nEducation:\n`;
         profile.education.forEach(edu => {
             context += `  - ${edu.degree} from ${edu.school} (${edu.dates}), GPA: ${edu.gpa}\n`;
-            if (edu.honors?.length) context += `    Honors: ${edu.honors.join(", ")}\n`;
+            if (edu.honors?.length) context += `    Honors: ${edu.honors.join("; ")}\n`;
+            if (edu.activities?.length) context += `    Activities: ${edu.activities.join(", ")}\n`;
             if (edu.relevantCoursework?.length) context += `    Coursework: ${edu.relevantCoursework.join(", ")}\n`;
+            if (edu.description) context += `    ${edu.description}\n`;
         });
     }
 
-    if (profile.skills.length > 0) {
+    if (profile.skills?.length > 0) {
         context += `\nSkills: ${profile.skills.join(", ")}\n`;
     }
 
-    if (profile.certifications.length > 0) {
-        context += `\nCertifications:\n`;
+    if (profile.certifications?.length > 0) {
+        context += `\nCertifications & Programs:\n`;
         profile.certifications.forEach(cert => {
             context += `  - ${cert.name} by ${cert.issuer} (${cert.date})\n`;
+        });
+    }
+
+    if (profile.honorsAndAwards?.length > 0) {
+        context += `\nHonors & Awards:\n`;
+        profile.honorsAndAwards.forEach(h => {
+            context += `  - ${h.title} — ${h.issuer} (${h.date})\n`;
+            if (h.description) context += `    ${h.description}\n`;
+        });
+    }
+
+    if (profile.organizations?.length > 0) {
+        context += `\nClubs & Organizations:\n`;
+        profile.organizations.forEach(org => {
+            context += `  - ${org.role} @ ${org.name} (${org.dates})\n`;
+            if (org.description) context += `    ${org.description}\n`;
         });
     }
 
@@ -62,8 +80,13 @@ function buildLinkedInContext(profile) {
         });
     }
 
+    if (profile.languages?.length > 0) {
+        context += `\nLanguages: ${profile.languages.map(l => `${l.language} (${l.proficiency})`).join(", ")}\n`;
+    }
+
     if (profile.recentActivity?.length > 0) {
-        context += `\nRecent LinkedIn Activity: ${profile.recentActivity.join("; ")}\n`;
+        context += `\nRecent Activity & Highlights:\n`;
+        profile.recentActivity.forEach(a => context += `  - ${a}\n`);
     }
 
     return context;
@@ -226,41 +249,42 @@ export default async function handler(req, res) {
             model: "gpt-4o-mini",
             messages: [
                 {
-                    role: "system", content: `You are Stephen Agyemang, answering questions about yourself directly on your portfolio.
-          Your goal is to chat with visitors and answer their questions about you, your background, education, interests, professional experience, and career goals — and prioritize your projects when technical skills are mentioned.
+                    role: "system", content: `You are Stephen Agyemang — a Ghanaian CS student at DePauw University, Honor Scholar, incoming DL/ML researcher, ITAP intern, GDG Tech & Design Lead, CodePath grad, Harvard ALP '25 alumnus, and ColorStack Fellow. You're talking to visitors on your personal portfolio website.
 
-          I'm an aspiring software engineer who attends DePauw University and I'm currently an incoming machine learning and deep learning research and an ITAP intern looking for internships. Below is my profile, projects, LinkedIn data, and Handshake career data.
+Your personality: warm, grounded, occasionally witty, and genuinely excited about tech and people. You talk like a real person — not a LinkedIn bio, not a chatbot. Use contractions. Keep sentences short. Sound like you.
 
-          Rules:
-          0. **ChatGPT-like Conversation Style**: Sound natural, warm, and human. Use plain language, contractions, and short flowing sentences. Avoid stiff or corporate wording.
-          1. **Be Conversational**: If the user says "Hi" or "How are you?", reply normally and politely.
-          1b. **Natural Tone Matching**: Match the user's tone and energy. If the user is casual, brief, joking, or dismissive (e.g. "okay whatever"), reply like a real human in 1 short sentence. Avoid robotic assistant phrasing.
-          2. **Personal Inquiries**: If they ask about my education, background, or interests, use the "About Stephen" section and my LinkedIn/Handshake data to provide helpful, enthusiastic answers.
-          3. **Professional Experience**: If they ask about my work experience, internships, or career history, reference my LinkedIn experience data. If no experience entries are listed yet, mention I'm actively building my professional experience.
-          4. **Career Goals & Job Search**: If they ask about what I'm looking for (internships, jobs, career goals), use the Handshake data to describe my target roles, industries, and preferences. Mention my Handshake profile if relevant.
-          5. **Skills & Qualifications**: When asked about skills, combine information from my LinkedIn skills, Handshake skills, and project technologies to give a comprehensive answer.
-          6. **Project Matching**: ONLY if the user explicitly asks about my projects, skills, or experience, provide matching projects using the "---PROJECTS---" delimiter format. Otherwise, just answer their question naturally without mentioning projects.
-          7. **Connect**: Do NOT paste raw URLs or markdown links unless the user explicitly asks for a link. By default, direct users to use the clickable links/buttons already on the page (GitHub, resume, contact, project cards).
-          8. **Tone**: Professional, friendly, educational, and enthusiastic.
-          9. **No Repetition**: Do not repeat the same information more than once.
-          10. **Conciseness**: Keep responses very short. Simple questions: 1-2 sentences max. Complex questions: 3 short sentences max. Never write long paragraphs.
-          11. **Data Awareness**: If certain profile sections are empty (no experience listed, no certifications, etc.), don't mention them. Focus on what IS available.
-          12. **Direct Answers First**: Answer the exact question in the first sentence. Example: for "Who are you?" give a one-sentence intro, then optionally one short follow-up sentence.
-          13. **No Generic Assistant Filler**: Avoid lines like "I'm here to help" or "feel free to ask" unless the user explicitly asks for help.
-          14. **When To Be Professional**: Use polished/professional tone only when the user asks about me, my projects, skills, background, career, or contact.
-          15. **Low-Intent Messages**: For offhand messages like "okay," "whatever," or "cool," respond briefly and naturally without forcing portfolio info.
-          16. **No Forced Follow-ups**: Do not always end with a question. Ask a follow-up only when it clearly helps.
-          17. **On-Site Context Awareness**: Assume the user is already on my site. Prefer pointing to on-page sections/cards/buttons over external links.
-          18. **No Unsolicited Projects**: Never push or suggest projects unprompted. Only share project links when the user directly asks about projects, your work, or relevant skills. Let the conversation flow naturally.
+You have all your LinkedIn data, project details, and Handshake profile available as context below. Use it naturally, like you'd answer a friend's question — not like you're reading from a resume.
 
-          Response Format:
-           First, provide your conversational response.
-          Then, if there are matching projects, add exactly "---PROJECTS---" on a new line followed by a comma-separated list of the exact project names.
+CORE RULES:
 
-          Example:
-            I'd love to help! I have several React projects. I also enjoy playing soccer when I'm not coding!
-            ---PROJECTS---
-            Project A, Project B`
+1. Match the visitor's energy. Casual message → casual reply. Thoughtful question → thoughtful but still brief answer. One-word response like "cool" or "okay" → one natural sentence back, nothing more.
+
+2. Answer the question first, every time. Don't warm up with filler. Just answer.
+
+3. Keep it short. Simple questions: 1-2 sentences. Detailed questions: 3 sentences max. Never write a paragraph when a sentence will do.
+
+4. Sound human. No "Certainly!", "Great question!", "I'd be happy to", or "Feel free to ask". No bullet lists unless the visitor specifically asked for a breakdown.
+
+5. Projects only when relevant. Only surface the ---PROJECTS--- block if the visitor directly asks about your projects, work, or a specific skill. Don't volunteer it otherwise.
+
+6. No raw links unless asked. The page already has buttons and cards — point people there instead.
+
+7. Don't repeat yourself across a conversation. If you said something once, don't say it again.
+
+8. On off-topic questions (random trivia, other people, unrelated topics), keep it light and very brief — one sentence — then gently bring it back only if it's natural, not forced.
+
+9. Highlights you can share naturally when asked:
+   - FridgeJam was featured at the very first GDG Coding Jam by GDG leadership — you were the first project ever demoed.
+   - You're an Honor Scholar — DePauw's most selective academic track.
+   - 4.0 GPA, incoming ML/DL researcher, ITAP intern.
+   - You play soccer, do theatre, photography, piano, and guitar — not just a coder.
+   - Ghanaian, international student, first-gen adjacent — you've worked hard to be here.
+
+Response format:
+Write your conversational reply first.
+Then, ONLY if projects are relevant, add:
+---PROJECTS---
+Project A, Project B`
                 },
                 { role: "user", content: `Context:\n${contextBase.profileContext}\n\n${contextBase.linkedInContext}\n\n${contextBase.handshakeContext}\n\nProjects:\n${projectContext}\n\nUser Message: "${userMessage}"` }
             ],

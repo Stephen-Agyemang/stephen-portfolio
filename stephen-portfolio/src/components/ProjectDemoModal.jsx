@@ -81,7 +81,7 @@ const renderDemo = (demoType) => {
     case 'zork-hud':
       return <ZorkV2Demo />;
     case 'chef-assistant':
-      return <FridgeChefDemo />;
+      return <FridgeJamDemo />;
     case 'financial-ledger':
       return <FinTrackerDemo />;
     case 'portfolio-dashboard':
@@ -449,9 +449,9 @@ const ZorkV2Demo = () => {
 };
 
 // ============================================================
-// 3. FridgeChef - Cozy Ingredients Leftovers Scanner
+// 3. FridgeJam - Cozy Ingredients Leftovers Scanner
 // ============================================================
-const FridgeChefDemo = () => {
+const FridgeJamDemo = () => {
   const [selectedIngredients, setSelectedIngredients] = useState([]);
   const [personality, setPersonality] = useState('Fitness Coach');
   const [recipeState, setRecipeState] = useState('idle'); // idle, scanning, generating, generated
