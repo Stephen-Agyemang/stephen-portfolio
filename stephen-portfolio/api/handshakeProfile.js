@@ -127,13 +127,14 @@ export function getHandshakeProfile() {
                 "Software Engineering",
                 "Artificial Intelligence",
                 "Machine Learning",
+                "Cloud Infrastructure",
             ],
             roles: [
-                "Software Engineer",
+                "Backend Software Engineer",
                 "Machine Learning Engineer",
-                "AI Research",
-                "Full-Stack Developer",
-                "IT Support",
+                "AI/ML Research",
+                "Cloud & Infrastructure Engineer",
+                "Software Engineer Intern",
             ],
         },
 

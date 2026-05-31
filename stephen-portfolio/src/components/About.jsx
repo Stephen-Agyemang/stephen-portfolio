@@ -132,11 +132,10 @@ const About = () => {
           color: "var(--text-color)",
           fontFamily: "'Inter', system-ui, sans-serif"
         }}>
-          I am a Ghanaian Honor Scholar at DePauw University, pursuing a degree
-          in Computer Science. As an Honor Scholar, I focus on building
-          highly scalable backend systems and exploring the cutting-edge intersections
-          of Machine Learning, Deep Learning, and AI Research. I am driven by the challenge
-          of designing high-performance distributed architectures and cloud solutions.
+          I am a Ghanaian Honor Scholar at DePauw University studying Computer Science,
+          with a strong interest in software engineering and AI/ML/DL research.
+          I am an incoming DL/ML researcher and ITAP intern — drawn to building systems
+          that are scalable, efficient, and built to last.
         </p>
 
         <p style={{
@@ -145,12 +144,20 @@ const About = () => {
           color: "var(--text-color)",
           fontFamily: "'Inter', system-ui, sans-serif"
         }}>
-          My technical toolkit includes Java, Python, Git, and cloud services, with a deep
-          interest in optimizing data structures, algorithms, and automated workflows. Beyond the terminal,
-          I am a multi-disciplinary enthusiast blending the logic of Mathematics with
-          the creative expression of Theatre and Acting. Whether I am collaborating on
-          the soccer pitch or building robust engineering pipelines, I thrive 
-          in fast-paced environments that challenge my problem-solving and teamwork skills.
+          I build full-stack projects and I am comfortable across the stack, but I have a
+          growing passion for how things work under the hood — system design, cloud infrastructure,
+          and the engineering that powers great software at scale. Always learning, always building.
+        </p>
+
+        <p style={{
+          fontSize: isMobile ? "1rem" : "1.2rem",
+          lineHeight: "1.6",
+          color: "var(--text-color)",
+          fontFamily: "'Inter', system-ui, sans-serif"
+        }}>
+          Beyond the terminal, I am a multi-disciplinary thinker — minoring in Mathematics and Theatre,
+          picking up piano and guitar, shooting photography, and playing soccer. I thrive in
+          fast-paced environments that demand both precision and creativity.
         </p>
       </div>
     </section>
