@@ -64,14 +64,26 @@ const Skills = () => {
   const isMobile = useIsMobile();
   const [nodes, setNodes] = useState(initialNodes);
   const [hoveredNode, setHoveredNode] = useState(null);
-  
+  const [isVisible, setIsVisible] = useState(false);
+
   // Dragging states
   const [draggedNode, setDraggedNode] = useState(null);
   const boardRef = useRef(null);
+  const sectionRef = useRef(null);
+
+  // Pause physics when section is off-screen
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { threshold: 0.05 }
+    );
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   // 1. Force-Directed Physics Engine (requestAnimationFrame)
   useEffect(() => {
-    if (isMobile) return; // Disable physics on mobile list view
+    if (isMobile || !isVisible) return; // Disable physics on mobile or when off-screen
 
     let animationFrameId;
 
@@ -182,7 +194,7 @@ const Skills = () => {
     runPhysics();
 
     return () => cancelAnimationFrame(animationFrameId);
-  }, [draggedNode, isMobile]);
+  }, [draggedNode, isMobile, isVisible]);
 
   // 2. Drag Handlers
   const handleMouseMove = (e) => {
@@ -223,7 +235,7 @@ const Skills = () => {
   };
 
   return (
-    <section id="skills" className="skills" style={{ padding: isMobile ? "80px 16px" : "100px 20px", zIndex: 2, position: "relative" }}>
+    <section ref={sectionRef} id="skills" className="skills" style={{ padding: isMobile ? "80px 16px" : "100px 20px", zIndex: 2, position: "relative" }}>
       <div className="section-telemetry">[ SEC_03 // MATRIX_NET ]</div>
       <h2 className="skills-title section-title-neon" style={{ fontSize: isMobile ? "2rem" : "3rem", marginBottom: isMobile ? "20px" : "10px" }}>
         Skills

@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import "./App.css";
 import Navbar from "./components/Navbar.jsx";
 import Hero from "./components/Hero.jsx";
-import About from "./components/About.jsx";
-import Projects from "./components/Projects.jsx";
-import ProjectDiscovery from "./components/ProjectDiscovery.jsx";
-import Skills from "./components/Skills.jsx";
-import EmailDraftAssistant from "./components/EmailDraftAssistant.jsx";
-import Footer from "./components/Footer.jsx";
-import useIsMobile from "./hooks/useIsMobile";
+
+const About = lazy(() => import("./components/About.jsx"));
+const Projects = lazy(() => import("./components/Projects.jsx"));
+const ProjectDiscovery = lazy(() => import("./components/ProjectDiscovery.jsx"));
+const Skills = lazy(() => import("./components/Skills.jsx"));
+const EmailDraftAssistant = lazy(() => import("./components/EmailDraftAssistant.jsx"));
+const Footer = lazy(() => import("./components/Footer.jsx"));
 
 if (typeof window !== 'undefined') {
   window.history.scrollRestoration = 'manual';
@@ -16,7 +16,6 @@ if (typeof window !== 'undefined') {
 }
 
 function App() {
-  const isMobile = useIsMobile(1200); // Only show circuit sidebar on screens wider than 1200px
   const [activeSection, setActiveSection] = useState("home");
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -92,12 +91,14 @@ function App() {
       </div>
       <Navbar theme={theme} toggleTheme={toggleTheme} />
       <Hero />
-      <About />
-      <ProjectDiscovery />
-      <Projects />
-      <Skills />
-      <EmailDraftAssistant />
-      <Footer />
+      <Suspense fallback={null}>
+        <About />
+        <ProjectDiscovery />
+        <Projects />
+        <Skills />
+        <EmailDraftAssistant />
+        <Footer />
+      </Suspense>
     </div>
   );
 }
