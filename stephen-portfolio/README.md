@@ -1,16 +1,38 @@
-# React + Vite
+# stephen-portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite frontend for [stephens-portfolio.vercel.app](https://stephens-portfolio.vercel.app).
 
-Currently, two official plugins are available:
+## Dev
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```bash
+npm install
+npm run dev      # http://localhost:5173
+npm run build    # production build → dist/
+npm run preview  # preview production build locally
+```
 
-## React Compiler
+## Environment variables
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Create a `.env.local` file in this directory:
 
-## Expanding the ESLint configuration
+```
+OPENAI_API_KEY=your_key_here
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## API routes (Vercel Functions)
+
+| Route | Purpose |
+|---|---|
+| `/api/chat` | Streaming AI chatbot (project discovery) |
+| `/api/email` | Email draft generation |
+| `/api/githubFetcher` | GitHub stats proxy |
+| `/api/linkedinProfile` | LinkedIn profile proxy |
+
+## Build output
+
+Chunks are split for optimal caching:
+
+- `index.js` — Navbar + Hero (critical path, loads immediately)
+- `vendor-react.js` — React + ReactDOM (cached between deploys)
+- `vendor-icons.js` — react-icons (cached between deploys)
+- All other sections (About, Projects, Skills, etc.) — lazy-loaded on scroll

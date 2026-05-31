@@ -3,7 +3,7 @@ import { fetchGithubProjects } from "./githubFetcher.js";
 import { getLinkedInProfile } from "./linkedinProfile.js";
 import { getHandshakeProfile } from "./handshakeProfile.js";
 
-const openAiKey = globalThis.process?.env?.OPENAI_API_KEY || globalThis.process?.env?.VITE_OPENAI_API_KEY;
+const openAiKey = globalThis.process?.env?.OPENAI_API_KEY;
 
 const client = new OpenAI({
     apiKey: openAiKey,
