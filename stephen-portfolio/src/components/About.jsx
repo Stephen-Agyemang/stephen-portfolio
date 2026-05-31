@@ -1,5 +1,4 @@
-import React from "react";
-import Stephen from "../assets/Stephen.jpg"
+import Stephen from "../assets/Stephen.webp"
 import useIsMobile from '../hooks/useIsMobile';
 
 const About = () => {

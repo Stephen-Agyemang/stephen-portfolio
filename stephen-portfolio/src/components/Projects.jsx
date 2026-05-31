@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, lazy, Suspense } from "react";
 import { FaArrowRight, FaPlay } from "react-icons/fa";
 import { projects } from "../data/projects";
 import useIsMobile from '../hooks/useIsMobile';
-import ProjectDemoModal from "./ProjectDemoModal.jsx";
+const ProjectDemoModal = lazy(() => import("./ProjectDemoModal.jsx"));
 
 const Projects = () => {
     const isMobile = useIsMobile();
@@ -278,10 +278,12 @@ const Projects = () => {
             </div>
 
             {/* Simulated Live Playground Dialog */}
-            <ProjectDemoModal 
-                project={selectedProject} 
-                onClose={() => setSelectedProject(null)} 
-            />
+            <Suspense fallback={null}>
+                <ProjectDemoModal
+                    project={selectedProject}
+                    onClose={() => setSelectedProject(null)}
+                />
+            </Suspense>
 
             <style>{`
                 .project-card {
