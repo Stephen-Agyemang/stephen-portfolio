@@ -90,14 +90,18 @@ function App() {
         <div className="ambient-glow-3" />
       </div>
       <Navbar theme={theme} toggleTheme={toggleTheme} />
-      <Hero />
+      <main>
+        <Hero />
+        <Suspense fallback={null}>
+          <About />
+          <Projects />
+          <Skills />
+          <EmailDraftAssistant />
+          <Footer />
+        </Suspense>
+      </main>
       <Suspense fallback={null}>
-        <About />
         <ProjectDiscovery />
-        <Projects />
-        <Skills />
-        <EmailDraftAssistant />
-        <Footer />
       </Suspense>
     </div>
   );

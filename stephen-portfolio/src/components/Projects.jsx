@@ -153,6 +153,7 @@ const Projects = () => {
                                     style={{
                                         flex: 1,
                                         padding: "10px 4px",
+                                        minHeight: "48px",
                                         borderRadius: "12px",
                                         border: project.liveUrl ? "1px solid var(--btn-secondary-border)" : "none",
                                         background: project.liveUrl ? "var(--btn-secondary-bg)" : `linear-gradient(135deg, ${themeColor}, color-mix(in srgb, ${themeColor} 86%, transparent))`,
@@ -185,6 +186,7 @@ const Projects = () => {
                                             style={{
                                                 width: "100%",
                                                 padding: "10px 4px",
+                                                minHeight: "48px",
                                                 borderRadius: "12px",
                                                 border: "none",
                                                 background: `linear-gradient(135deg, ${themeColor}, color-mix(in srgb, ${themeColor} 86%, transparent))`,
@@ -209,6 +211,7 @@ const Projects = () => {
                                         style={{
                                             flex: 1,
                                             padding: "10px 4px",
+                                            minHeight: "48px",
                                             borderRadius: "12px",
                                             border: "1px dashed var(--btn-secondary-border)",
                                             background: "rgba(255, 255, 255, 0.01)",
@@ -244,6 +247,7 @@ const Projects = () => {
                                         style={{
                                             width: "100%",
                                             padding: "10px 4px",
+                                            minHeight: "48px",
                                             borderRadius: "12px",
                                             border: "1px solid var(--btn-secondary-border)",
                                             background: "var(--btn-secondary-bg)",
