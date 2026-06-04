@@ -253,7 +253,7 @@ const Skills = () => {
           <div className="skills-mobile-category">
             <h3>Languages</h3>
             <div className="skills-mobile-grid">
-              {initialNodes.filter(n => !n.isProject && n.iconClass.includes('java') || n.iconClass.includes('python') || n.iconClass.includes('javascript') || n.iconClass.includes('cplusplus')).map(n => (
+              {initialNodes.filter(n => !n.isProject && (n.iconClass?.includes('java') || n.iconClass?.includes('python') || n.iconClass?.includes('javascript') || n.iconClass?.includes('cplusplus'))).map(n => (
                 <div key={n.id} className="skills-mobile-card">
                   <i className={`${n.iconClass} skills-mobile-card-icon`} />
                   <div>
@@ -269,7 +269,7 @@ const Skills = () => {
           <div className="skills-mobile-category">
             <h3>Frameworks & AI</h3>
             <div className="skills-mobile-grid">
-              {initialNodes.filter(n => !n.isProject && n.iconClass.includes('react') || n.iconClass.includes('spring') || n.iconClass.includes('google') || n.id === 'webrtc' || n.id === 'fastapi').map(n => (
+              {initialNodes.filter(n => !n.isProject && (n.iconClass?.includes('react') || n.iconClass?.includes('spring') || n.iconClass?.includes('google') || n.id === 'webrtc' || n.id === 'fastapi')).map(n => (
                 <div key={n.id} className="skills-mobile-card">
                   <i className={`${n.iconClass} skills-mobile-card-icon`} />
                   <div>
@@ -285,7 +285,7 @@ const Skills = () => {
           <div className="skills-mobile-category">
             <h3>DevOps & DB</h3>
             <div className="skills-mobile-grid">
-              {initialNodes.filter(n => !n.isProject && n.iconClass.includes('docker') || n.iconClass.includes('kubernetes') || n.iconClass.includes('postgresql') || n.iconClass.includes('git')).map(n => (
+              {initialNodes.filter(n => !n.isProject && (n.iconClass?.includes('docker') || n.iconClass?.includes('kubernetes') || n.iconClass?.includes('postgresql') || n.iconClass?.includes('git'))).map(n => (
                 <div key={n.id} className="skills-mobile-card">
                   <i className={`${n.iconClass} skills-mobile-card-icon`} />
                   <div>
