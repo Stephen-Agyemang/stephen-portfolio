@@ -2,9 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { chatWithAIStream } from '../services/aiService';
 import { FaRobot, FaTimes, FaPaperPlane, FaArrowRight } from 'react-icons/fa';
 import { projects } from '../data/projects';
+import useIsMobile from '../hooks/useIsMobile';
 
 
 const ProjectDiscovery = () => {
+    const isMobile = useIsMobile();
     const [isOpen, setIsOpen] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [scrolled, setScrolled] = useState(false);
@@ -101,7 +103,7 @@ const ProjectDiscovery = () => {
 
     return (
         <>
-            {/* Floating Toggle Button */}
+            {/* Floating Toggle Button — hidden on mobile when chat is open */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="btn-ai-assistant"
@@ -109,6 +111,7 @@ const ProjectDiscovery = () => {
                     position: "fixed",
                     bottom: "30px",
                     right: "30px",
+                    display: isMobile && isOpen ? "none" : "flex",
                     width: isOpen ? "60px" : "auto",
                     height: "60px",
                     padding: isOpen ? "0" : "0 25px",
@@ -119,7 +122,6 @@ const ProjectDiscovery = () => {
                     boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
                     color: scrolled || isOpen ? "var(--bg-color)" : "var(--text-color)",
                     border: scrolled || isOpen ? "1px solid var(--color-monica)" : "1px solid var(--btn-secondary-border)",
-                    display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     cursor: "pointer",
@@ -144,20 +146,30 @@ const ProjectDiscovery = () => {
             {isOpen && (
                 <div style={{
                     position: "fixed",
-                    bottom: "100px",
-                    right: "30px",
-                    width: "350px",
-                    height: "500px",
+                    ...(isMobile ? {
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        width: "100%",
+                        height: "100dvh",
+                        borderRadius: 0,
+                    } : {
+                        bottom: "100px",
+                        right: "30px",
+                        width: "350px",
+                        height: "500px",
+                        borderRadius: "20px",
+                    }),
                     background: "var(--chat-bg)",
                     backdropFilter: "blur(20px)",
                     WebkitBackdropFilter: "blur(20px)",
-                    borderRadius: "20px",
                     boxShadow: "0 10px 40px rgba(0, 0, 0, 0.18)",
                     display: "flex",
                     flexDirection: "column",
-                    zIndex: 1000,
+                    zIndex: 1001,
                     overflow: "hidden",
-                    border: "1px solid var(--chat-border)",
+                    border: isMobile ? "none" : "1px solid var(--chat-border)",
                     transition: "all 0.4s ease"
                 }}>
                     {/* Header */}
@@ -173,7 +185,26 @@ const ProjectDiscovery = () => {
                         fontFamily: "'Courier New', Courier, monospace",
                         letterSpacing: "0.5px"
                     }}>
-                        <FaRobot className="blink-led" style={{ color: "var(--chat-user-text)" }} /> AI COCKPIT ASSISTANT
+                        <FaRobot className="blink-led" style={{ color: "var(--chat-user-text)" }} />
+                        <span style={{ flex: 1 }}>AI COCKPIT ASSISTANT</span>
+                        {isMobile && (
+                            <button
+                                onClick={() => setIsOpen(false)}
+                                style={{
+                                    background: "none",
+                                    border: "none",
+                                    color: "var(--chat-user-text)",
+                                    cursor: "pointer",
+                                    padding: "4px 8px",
+                                    fontSize: "1.2rem",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    outline: "none",
+                                }}
+                            >
+                                <FaTimes />
+                            </button>
+                        )}
                     </div>
 
                     {/* Messages Area */}
@@ -260,6 +291,7 @@ const ProjectDiscovery = () => {
                     {/* Input Area */}
                     <form onSubmit={handleSearch} style={{
                         padding: "15px",
+                        paddingBottom: isMobile ? "max(15px, env(safe-area-inset-bottom))" : "15px",
                         background: "var(--chat-form-bg)",
                         borderTop: "1px solid var(--chat-border)",
                         display: "flex",
