@@ -186,7 +186,7 @@ const ProjectDiscovery = () => {
                         letterSpacing: "0.5px"
                     }}>
                         <FaRobot className="blink-led" style={{ color: "var(--chat-user-text)" }} />
-                        <span style={{ flex: 1 }}>AI COCKPIT ASSISTANT</span>
+                        <span style={{ flex: 1 }}>AI ASSISTANT</span>
                         {isMobile && (
                             <button
                                 onClick={() => setIsOpen(false)}
