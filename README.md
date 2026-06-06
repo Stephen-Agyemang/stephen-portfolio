@@ -52,7 +52,3 @@ stephen-portfolio/
 │   └── services/     # aiService.js (fetch wrappers for /api routes)
 └── public/
 ```
-
-## License
-
-MIT
