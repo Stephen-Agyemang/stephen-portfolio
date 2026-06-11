@@ -3,9 +3,9 @@ export const projects = [
         id: "monica",
         name: "MoNiCa.Ai",
         tagline: "Mock Interview Conversational Assistant",
-        description: "A highly scalable, real-time, low-latency AI interviewing agent deployed as a microservices architecture. Leverages WebRTC for bi-directional media streaming, orchestrating FastAPI, LiveKit Agent SDK, Deepgram STT, ElevenLabs TTS, and Simli/Tavus visual rendering APIs to conduct realistic technical and behavioral interviews.",
+        description: "A highly scalable, real-time, low-latency AI interviewing agent deployed as a microservices architecture. Leverages WebRTC for bi-directional media streaming, orchestrating FastAPI, LiveKit Agent SDK, Deepgram STT, Cartesia TTS, and Simli/Tavus visual rendering APIs to conduct realistic technical and behavioral interviews.",
         link: "https://github.com/Stephen-Agyemang/MoNiCa.Ai",
-        skills: ["WebRTC", "FastAPI", "Python", "React", "LiveKit", "Docker", "Kubernetes", "Deepgram STT", "ElevenLabs", "Supabase", "GPT-4"],
+        skills: ["WebRTC", "FastAPI", "Python", "React", "LiveKit", "Docker", "Kubernetes", "Deepgram STT", "Cartesia TTS", "Supabase", "GPT-4"],
         demoType: "interview-simulation"
     },
     {
