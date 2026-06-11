@@ -7,6 +7,7 @@ const Hero = () => {
 
     return (
         <section id="home" className="hero">
+        <div style={{ maxWidth: "900px", width: "100%", margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "center" }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                 <h1
                     className="hey-there"
@@ -185,6 +186,7 @@ const Hero = () => {
                     />
                 </a>
             </div>
+        </div>
         </section>
     );
 };

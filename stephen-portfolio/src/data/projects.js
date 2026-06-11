@@ -14,6 +14,7 @@ export const projects = [
         tagline: "Futuristic OOP Cockpit Adventure",
         description: "A full-stack, modernized text-adventure engine wrapping classic parser mechanics in a futuristic tactical cockpit dashboard. Features a Spring Boot REST API backed by a state-oriented routing game engine, pairing high-fidelity React HUD gauges (Cognitive Load, Thirst, Sanity) with live typing-pipeline interceptors.",
         link: "https://github.com/Stephen-Agyemang/Zork-v2",
+        liveUrl: "https://zork-v2.onrender.com",
         skills: ["Java 21", "Spring Boot", "React", "Vanilla CSS", "REST API", "State Machine", "Maven", "Game Design"],
         demoType: "zork-hud"
     },
