@@ -236,6 +236,7 @@ const Skills = () => {
 
   return (
     <section ref={sectionRef} id="skills" className="skills" style={{ padding: isMobile ? "80px 16px" : "100px 20px", zIndex: 2, position: "relative" }}>
+      <div style={{ maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
       <div className="section-telemetry">[ SEC_03 // MATRIX_NET ]</div>
       <h2 className="skills-title section-title-neon" style={{ fontSize: isMobile ? "2rem" : "3rem", marginBottom: isMobile ? "20px" : "10px" }}>
         Skills
@@ -384,6 +385,7 @@ const Skills = () => {
           })}
         </div>
       )}
+      </div>
     </section>
   );
 };

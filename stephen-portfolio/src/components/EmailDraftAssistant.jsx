@@ -56,6 +56,7 @@ const EmailDraftAssistant = () => {
             position: "relative",
             transition: "border-top 0.4s ease"
         }}>
+            <div style={{ maxWidth: "900px", margin: "0 auto", width: "100%" }}>
             <div className="section-telemetry" style={{ justifyContent: "center" }}>[ SEC_04 // SYS_MAIL ]</div>
             <h2 className="section-title-neon" style={{
                 fontSize: isMobile ? "1.8rem" : "2.5rem",
@@ -311,6 +312,7 @@ const EmailDraftAssistant = () => {
                     box-shadow: 0 0 20px rgba(255, 255, 255, 0.18) !important;
                 }
             `}</style>
+            </div>
         </section>
     );
 };

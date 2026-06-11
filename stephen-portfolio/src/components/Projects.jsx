@@ -27,6 +27,7 @@ const Projects = () => {
                 position: "relative"
             }}
         >
+            <div style={{ maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
             <div className="section-telemetry">[ SEC_02 // DEPLOY_DB ]</div>
             <h2 className="section-title-neon" style={{
                 fontSize: isMobile ? "2rem" : "3rem",
@@ -41,8 +42,6 @@ const Projects = () => {
                     display: "grid",
                     gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(310px, 1fr))",
                     gap: isMobile ? "30px" : "40px",
-                    maxWidth: "1200px",
-                    margin: "0 auto",
                     justifyContent: "center"
                 }}
             >
@@ -288,6 +287,7 @@ const Projects = () => {
                     onClose={() => setSelectedProject(null)}
                 />
             </Suspense>
+            </div>
 
             <style>{`
                 .project-card {

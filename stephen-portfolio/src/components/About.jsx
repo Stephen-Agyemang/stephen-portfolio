@@ -8,14 +8,19 @@ const About = () => {
     <section
       id="about"
       style={{
+        padding: isMobile ? "60px 16px" : "100px 20px",
+      }}
+    >
+      <div style={{
+        maxWidth: "1200px",
+        margin: "0 auto",
+        width: "100%",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         gap: isMobile ? "24px" : "50px",
-        padding: isMobile ? "60px 16px" : "100px 20px",
         flexWrap: "wrap",
-      }}
-    >
+      }}>
       {/* Picture wrapped in a glowing cyber viewport frame */}
       <div style={{
         position: "relative",
@@ -158,6 +163,7 @@ const About = () => {
           picking up piano and guitar, shooting photography, and playing soccer. I thrive in
           fast-paced environments that demand both precision and creativity.
         </p>
+      </div>
       </div>
     </section>
   );
