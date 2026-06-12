@@ -11,7 +11,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react/jsx-runtime', 'scheduler'],
+          'vendor-react': ['react', 'react-dom', 'react-dom/client', 'react/jsx-runtime', 'scheduler'],
           'vendor-icons': ['react-icons'],
         },
       },

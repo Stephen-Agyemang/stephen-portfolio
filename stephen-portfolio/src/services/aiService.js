@@ -1,6 +1,6 @@
 
 export async function chatWithAIStream(userMessage, projects, onChunk) {
-    const res = await fetch("/api/chat", {
+    const res = await fetch("https://stephen-vite.vercel.app/api/chat", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -44,7 +44,7 @@ export async function chatWithAIStream(userMessage, projects, onChunk) {
 }
 
 export async function generateEmailDrafts(userIntent) {
-    const res = await fetch("/api/email", {
+    const res = await fetch("https://stephen-vite.vercel.app/api/email", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
