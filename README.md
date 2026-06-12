@@ -1,8 +1,8 @@
 # Stephen Agyemang — Portfolio
 
-Personal portfolio website built with **React 19** and **Vite 7**, deployed on Vercel.
+Personal portfolio website built with **React 19** and **Vite 7**, deployed on Firebase.
 
-**Live site:** [stephen-vite.vercel.app](https://stephen-vite.vercel.app)
+**Live site:** [stephagyemang-portfolio.web.app](https://stephagyemang-portfolio.web.app)
 
 ## Features
 
@@ -24,7 +24,7 @@ Personal portfolio website built with **React 19** and **Vite 7**, deployed on V
 | Icons | react-icons, Devicons |
 | Fonts | Inter, DM Mono (Google Fonts) |
 | AI | OpenAI API (serverless via Vercel Functions) |
-| Deployment | Vercel |
+| Deployment | Firebase Hosting |
 
 ## Getting Started
 
