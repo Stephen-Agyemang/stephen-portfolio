@@ -1,8 +1,165 @@
-import React, { useState, lazy, Suspense } from "react";
+import React, { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { FaArrowRight, FaPlay } from "react-icons/fa";
 import { projects } from "../data/projects";
 import useIsMobile from '../hooks/useIsMobile';
 const ProjectDemoModal = lazy(() => import("./ProjectDemoModal.jsx"));
+
+/**
+ * Screenshot band across the top of a project card.
+ *
+ * Treated as an instrument feed rather than a photo: duotoned toward the
+ * project's theme colour at rest, scanlined, and cornered with the same
+ * viewfinder ticks the About frame uses, so a browser screenshot reads in the
+ * site's HUD language instead of against it. Hovering the card clears the tint
+ * and lets the real colours through.
+ *
+ * `project.image` is a URL into `public/`, not an import, so a screenshot that
+ * hasn't been captured yet 404s and drops through to the offline placeholder
+ * rather than breaking the build. The band is decorative — the card already
+ * carries the name, tagline and description as text — hence `aria-hidden`.
+ */
+const ProjectFeed = ({ project, themeColor }) => {
+    const [failed, setFailed] = useState(false);
+    const showImage = Boolean(project.image) && !failed;
+
+    return (
+        <div className="project-feed" aria-hidden="true">
+            {showImage ? (
+                <img
+                    src={project.image}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    onError={() => setFailed(true)}
+                />
+            ) : (
+                <div className="project-feed-empty">
+                    <span style={{ color: themeColor }}>[ FEED_OFFLINE ]</span>
+                    <span>{`// ${project.id.toUpperCase()}`}</span>
+                </div>
+            )}
+            <div className="project-feed-tint" />
+            <div className="project-feed-grain" />
+            <span className="project-feed-tick tl" />
+            <span className="project-feed-tick tr" />
+            <span className="project-feed-tick bl" />
+            <span className="project-feed-tick br" />
+        </div>
+    );
+};
+
+/**
+ * Skill pills, capped so one heavily-tagged project can't set the height of
+ * every card in its grid row. MoNiCa's 15 tags wrapped to five rows and
+ * dragged Zork and FridgeJam up 90px with it. The overflow is a toggle
+ * rather than a truncation, so nothing is actually hidden.
+ */
+const MAX_VISIBLE_SKILLS = 6;
+
+const SkillTags = ({ skills, themeColor }) => {
+    const [expanded, setExpanded] = useState(false);
+    if (!skills || skills.length === 0) return null;
+
+    const overflow = skills.length - MAX_VISIBLE_SKILLS;
+    const visible = expanded || overflow <= 0 ? skills : skills.slice(0, MAX_VISIBLE_SKILLS);
+
+    const chip = {
+        fontSize: "0.7rem",
+        padding: "3px 8px",
+        borderRadius: "12px",
+        fontWeight: "600",
+        background: `color-mix(in srgb, ${themeColor} 10%, transparent)`,
+        color: themeColor,
+        border: `1px solid color-mix(in srgb, ${themeColor} 13%, transparent)`,
+    };
+
+    return (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "14px" }}>
+            {visible.map((skill, sIdx) => (
+                <span key={sIdx} style={chip}>{skill}</span>
+            ))}
+            {overflow > 0 && (
+                <button
+                    type="button"
+                    onClick={() => setExpanded((v) => !v)}
+                    aria-expanded={expanded}
+                    style={{
+                        ...chip,
+                        cursor: "pointer",
+                        borderStyle: "dashed",
+                        fontFamily: "var(--font-mono)",
+                        outline: "none",
+                    }}
+                >
+                    {expanded ? "− less" : `+${overflow}`}
+                </button>
+            )}
+        </div>
+    );
+};
+
+/**
+ * Card description, clamped to three lines with a toggle to open it.
+ *
+ * The clamp is visual only, so the full paragraph is always in the DOM for
+ * crawlers and screen readers whether or not it's expanded.
+ *
+ * The toggle renders only when the text is genuinely cut off — measured, not
+ * guessed from character count, since wrapping depends on the card's width and
+ * on when the self-hosted fonts finish loading. A ResizeObserver re-checks on
+ * every box change, and skips measuring while the paragraph is open, where
+ * scrollHeight and clientHeight agree by definition.
+ */
+const ProjectBlurb = ({ text, themeColor, isMobile }) => {
+    const ref = useRef(null);
+    const [expanded, setExpanded] = useState(false);
+    const [overflows, setOverflows] = useState(false);
+
+    useEffect(() => {
+        const el = ref.current;
+        if (!el) return;
+
+        const check = () => {
+            if (!el.classList.contains("clamped")) return;
+            setOverflows(el.scrollHeight > el.clientHeight + 1);
+        };
+
+        check();
+        const observer = new ResizeObserver(check);
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, [text]);
+
+    return (
+        <>
+            <p
+                ref={ref}
+                className={expanded ? "project-blurb" : "project-blurb clamped"}
+                style={{
+                    fontSize: isMobile ? "0.9rem" : "0.92rem",
+                    marginBottom: "10px",
+                    color: "var(--text-color)",
+                    lineHeight: "1.5",
+                    fontFamily: "var(--font-mono)"
+                }}
+            >
+                {text}
+            </p>
+
+            {(overflows || expanded) && (
+                <button
+                    type="button"
+                    onClick={() => setExpanded((v) => !v)}
+                    aria-expanded={expanded}
+                    className="blurb-toggle"
+                    style={{ color: themeColor }}
+                >
+                    {expanded ? "[ read less ]" : "[ read more ]"}
+                </button>
+            )}
+        </>
+    );
+};
 
 const Projects = () => {
     const isMobile = useIsMobile();
@@ -52,19 +209,31 @@ const Projects = () => {
                         <div
                             key={index}
                             className="project-card"
-                            style={{
-                                '--project-theme': themeColor,
-                                padding: isMobile ? "24px" : "28px"
-                            }}
+                            style={{ '--project-theme': themeColor }}
                         >
-                            {/* Blinking process LED in top-right corner */}
+                            <ProjectFeed project={project} themeColor={themeColor} />
+
+                            <div
+                                className="project-card-body"
+                                style={{ padding: isMobile ? "20px" : "24px" }}
+                            >
+                            {/* Blinking process LED, now riding on top of the feed
+                                band — it carries its own chip background so it stays
+                                legible against whatever the screenshot puts behind it. */}
                             <div style={{
                                 position: "absolute",
-                                top: "18px",
-                                right: "18px",
+                                top: "14px",
+                                right: "14px",
+                                zIndex: 4,
                                 display: "flex",
                                 alignItems: "center",
-                                gap: "6px"
+                                gap: "6px",
+                                padding: "4px 8px",
+                                borderRadius: "6px",
+                                background: "var(--chat-input-bg)",
+                                border: "1px solid var(--card-border)",
+                                backdropFilter: "blur(6px)",
+                                WebkitBackdropFilter: "blur(6px)"
                             }}>
                                 <span className="blink-led" style={{
                                     width: "6px",
@@ -121,44 +290,19 @@ const Projects = () => {
                                 {project.tagline}
                             </p>
                             
-                            {/* Skill Tags */}
-                            <div style={{
-                                display: "flex",
-                                flexWrap: "wrap",
-                                gap: "6px",
-                                marginBottom: "16px"
-                            }}>
-                                {project.skills && project.skills.map((skill, sIdx) => (
-                                    <span key={sIdx} style={{
-                                        fontSize: "0.7rem",
-                                        padding: "3px 8px",
-                                        background: `color-mix(in srgb, ${themeColor} 10%, transparent)`, // 10% opacity
-                                        color: themeColor,
-                                        borderRadius: "12px",
-                                        fontWeight: "600",
-                                        border: `1px solid color-mix(in srgb, ${themeColor} 13%, transparent)`
-                                    }}>
-                                        {skill}
-                                    </span>
-                                ))}
-                            </div>
+                            <SkillTags skills={project.skills} themeColor={themeColor} />
+
+                            <ProjectBlurb
+                                text={project.description}
+                                themeColor={themeColor}
+                                isMobile={isMobile}
+                            />
                             
-                            <p style={{
-                                fontSize: isMobile ? "0.9rem" : "0.92rem",
-                                marginBottom: "72px", // Space for action buttons
-                                color: "var(--text-color)",
-                                lineHeight: "1.5",
-                                fontFamily: "var(--font-mono)"
-                            }}>
-                                {project.description}
-                            </p>
-                            
-                            {/* Action overlays at card footer */}
+                            {/* Action row. `margin-top: auto` inside the flex body
+                                pins it to the card floor, which the old absolute
+                                positioning faked with a 72px spacer on the paragraph. */}
                             <div style={{
-                                position: "absolute",
-                                bottom: "18px",
-                                left: "18px",
-                                right: "18px",
+                                marginTop: "auto",
                                 display: "flex",
                                 gap: "8px"
                             }}>
@@ -323,6 +467,7 @@ const Projects = () => {
                                 </a>
                                 )}
                             </div>
+                            </div>
                         </div>
                     );
                 })}
@@ -354,6 +499,161 @@ const Projects = () => {
                     width: 100%;
                     margin: 0 auto;
                     box-sizing: border-box;
+                }
+
+                /* Visual clamp only — the full paragraph stays in the DOM for
+                   crawlers and screen readers, and the chat assistant is fed the
+                   untruncated text either way. */
+                .project-blurb.clamped {
+                    display: -webkit-box;
+                    -webkit-box-orient: vertical;
+                    -webkit-line-clamp: 3;
+                    line-clamp: 3;
+                    overflow: hidden;
+                }
+
+                .blurb-toggle {
+                    align-self: flex-start;
+                    margin-bottom: 16px;
+                    padding: 0;
+                    border: none;
+                    background: none;
+                    cursor: pointer;
+                    font-family: var(--font-mono);
+                    font-size: 0.68rem;
+                    font-weight: 700;
+                    letter-spacing: 0.5px;
+                    opacity: 0.75;
+                    outline: none;
+                    transition: opacity 0.2s ease;
+                }
+
+                .blurb-toggle:hover {
+                    opacity: 1;
+                }
+
+                .project-card-body {
+                    display: flex;
+                    flex-direction: column;
+                    flex: 1;
+                    min-height: 0;
+                }
+
+                .project-feed {
+                    position: relative;
+                    /* Contains the duotone blend so it can't reach the
+                       background field showing through the card's glass. */
+                    isolation: isolate;
+                    width: 100%;
+                    aspect-ratio: 16 / 9;
+                    flex-shrink: 0;
+                    overflow: hidden;
+                    background: var(--feed-backdrop);
+                    border-bottom: 1px solid color-mix(in srgb, var(--project-theme) 26%, transparent);
+                }
+
+                .project-feed img {
+                    display: block;
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    /* Anchor to the top: the nav and hero are the recognisable
+                       part of a site screenshot, the footer is not. */
+                    object-position: top center;
+                    filter: saturate(0.35) contrast(1.06) brightness(0.94);
+                    transform: scale(1.02);
+                    transition: filter 0.4s ease, transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+                }
+
+                .project-card:hover .project-feed img {
+                    filter: saturate(1) contrast(1) brightness(1);
+                    transform: scale(1.06);
+                }
+
+                /* Duotone pass. A 'color' blend keeps the screenshot's luminance,
+                   so its layout stays readable, while pulling every hue to the
+                   project's theme. Hover releases it to near-true colour. */
+                .project-feed-tint {
+                    position: absolute;
+                    inset: 0;
+                    background: var(--project-theme);
+                    mix-blend-mode: color;
+                    opacity: 0.6;
+                    transition: opacity 0.4s ease;
+                    pointer-events: none;
+                }
+
+                .project-card:hover .project-feed-tint {
+                    opacity: 0.12;
+                }
+
+                /* Scanlines, plus the veil that hands the band off to the card body. */
+                .project-feed-grain {
+                    position: absolute;
+                    inset: 0;
+                    pointer-events: none;
+                    background:
+                        repeating-linear-gradient(to bottom, var(--feed-scan) 0 1px, transparent 1px 3px),
+                        linear-gradient(to bottom, transparent 64%, var(--feed-veil) 100%);
+                }
+
+                /* Stands in until a screenshot exists for the project. */
+                .project-feed-empty {
+                    position: absolute;
+                    inset: 0;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 4px;
+                    font-family: var(--font-mono);
+                    font-size: 0.62rem;
+                    font-weight: 700;
+                    letter-spacing: 1.5px;
+                    color: var(--telemetry-color);
+                    background:
+                        linear-gradient(color-mix(in srgb, var(--project-theme) 13%, transparent) 1px, transparent 1px) 0 0 / 100% 24px,
+                        linear-gradient(90deg, color-mix(in srgb, var(--project-theme) 13%, transparent) 1px, transparent 1px) 0 0 / 24px 100%;
+                }
+
+                /* Viewfinder ticks — same vocabulary as the About photo frame. */
+                .project-feed-tick {
+                    position: absolute;
+                    width: 10px;
+                    height: 10px;
+                    z-index: 2;
+                    opacity: 0.75;
+                    pointer-events: none;
+                }
+                .project-feed-tick.tl {
+                    top: 8px; left: 8px;
+                    border-top: 2px solid var(--project-theme);
+                    border-left: 2px solid var(--project-theme);
+                }
+                .project-feed-tick.tr {
+                    top: 8px; right: 8px;
+                    border-top: 2px solid var(--project-theme);
+                    border-right: 2px solid var(--project-theme);
+                }
+                .project-feed-tick.bl {
+                    bottom: 8px; left: 8px;
+                    border-bottom: 2px solid var(--project-theme);
+                    border-left: 2px solid var(--project-theme);
+                }
+                .project-feed-tick.br {
+                    bottom: 8px; right: 8px;
+                    border-bottom: 2px solid var(--project-theme);
+                    border-right: 2px solid var(--project-theme);
+                }
+
+                @media (prefers-reduced-motion: reduce) {
+                    .project-feed img,
+                    .project-feed-tint {
+                        transition: none;
+                    }
+                    .project-card:hover .project-feed img {
+                        transform: scale(1.02);
+                    }
                 }
 
                 .project-card:hover {

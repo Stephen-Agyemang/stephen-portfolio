@@ -42,6 +42,12 @@ button:focus-visible {
   --floor-line: rgba(167, 210, 115, 0.16);
   --floor-opacity: 1;
   --telemetry-color: rgba(255, 255, 255, 0.25);
+  /* Project card feed band: scanline ink and the veil that fades the
+     screenshot into the card body. Both flip with the theme so the band
+     never fades toward a colour the card isn't sitting on. */
+  --feed-scan: rgba(0, 0, 0, 0.20);
+  --feed-veil: rgba(3, 7, 18, 0.72);
+  --feed-backdrop: #0a0f1e;
   --chat-bg: rgba(10, 15, 30, 0.9);
   --chat-border: rgba(167, 210, 115, 0.25);
   --chat-header: rgba(167, 210, 115, 0.12);
@@ -119,6 +125,9 @@ button:focus-visible {
   --floor-line: rgba(108, 154, 87, 0.17);
   --floor-opacity: 0.88;
   --telemetry-color: rgba(108, 154, 87, 0.6);
+  --feed-scan: rgba(108, 154, 87, 0.10);
+  --feed-veil: rgba(241, 245, 249, 0.66);
+  --feed-backdrop: #eef2f7;
   --chat-bg: rgba(255, 255, 255, 0.95);
   --chat-border: rgba(108, 154, 87, 0.3);
   --chat-header: rgba(108, 154, 87, 0.12);
