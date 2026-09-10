@@ -14,10 +14,28 @@ const Credentials = lazy(() => import("./components/Credentials.jsx"));
 const EmailDraftAssistant = lazy(() => import("./components/EmailDraftAssistant.jsx"));
 const Footer = lazy(() => import("./components/Footer.jsx"));
 
-if (typeof window !== 'undefined') {
+// Opt out of the browser restoring a previous scroll position on reload.
+//
+// 'manual' on its own is enough to land at the top. The explicit
+// scrollTo(0, 0) that used to follow it ran at module-eval time — which is
+// routinely *after* a visitor has already flicked the wheel — and yanked them
+// back, so the first scroll on a fresh load appeared to do nothing. It also
+// overrode #hash deep links, dropping /#projects at the top of the page.
+if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
   window.history.scrollRestoration = 'manual';
-  window.scrollTo(0, 0);
 }
+
+/**
+ * Placeholder that holds a lazy section's space until its chunk arrives.
+ *
+ * With `fallback={null}` the document stayed exactly one viewport tall for the
+ * ~400ms it took the section chunks to land, so a wheel flick in that window
+ * had nowhere to scroll — it looked like the first scroll was being swallowed.
+ * Reserving height makes the page scrollable from the first frame.
+ */
+const SectionFallback = ({ minHeight = "70vh" }) => (
+  <div aria-hidden="true" style={{ minHeight }} />
+);
 
 function App() {
   const [activeSection, setActiveSection] = useState("home");
@@ -92,15 +110,16 @@ function App() {
       <Navbar theme={theme} toggleTheme={toggleTheme} />
       <main>
         <Hero />
-        <Suspense fallback={null}>
-          <About />
-          <Skills />
-          <Projects />
-          <Experience />
-          <Credentials />
-          <EmailDraftAssistant />
-          <Footer />
-        </Suspense>
+        {/* One boundary per section rather than one around all seven: a shared
+            boundary makes every section wait for the slowest chunk, so nothing
+            below the hero rendered until the last one resolved. */}
+        <Suspense fallback={<SectionFallback />}><About /></Suspense>
+        <Suspense fallback={<SectionFallback />}><Skills /></Suspense>
+        <Suspense fallback={<SectionFallback />}><Projects /></Suspense>
+        <Suspense fallback={<SectionFallback />}><Experience /></Suspense>
+        <Suspense fallback={<SectionFallback />}><Credentials /></Suspense>
+        <Suspense fallback={<SectionFallback />}><EmailDraftAssistant /></Suspense>
+        <Suspense fallback={<SectionFallback minHeight="30vh" />}><Footer /></Suspense>
       </main>
       <Suspense fallback={null}>
         <ProjectDiscovery />
