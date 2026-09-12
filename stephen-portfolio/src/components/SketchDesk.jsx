@@ -1,4 +1,5 @@
 import SketchArt, { SKETCH_COUNT } from "./sketchArt.jsx";
+import useIsMobile from "../hooks/useIsMobile.js";
 import "./sketch.css";
 
 /**
@@ -53,6 +54,14 @@ const DESK = Array.from({ length: COUNT }, (_, i) => {
 });
 
 export default function SketchDesk() {
+    // sketch.css already hides the desk below 820px, but `display: none` only
+    // skips the painting — the thirty-two wrappers and their SVG paths are
+    // still built, styled and kept in the document. Phones are exactly where
+    // that DOM is least affordable and least visible, so don't build it at
+    // all. The CSS rule stays as the backstop for the resize gap.
+    const isNarrow = useIsMobile(821);
+    if (isNarrow) return null;
+
     return (
         <div className="sketch-desk" aria-hidden="true">
             {DESK.map(({ id, shape, edge, top, inset, size, fade, tilt, flip, deep }) => (

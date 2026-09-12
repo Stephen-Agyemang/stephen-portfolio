@@ -4,6 +4,13 @@ import { projects } from "../data/projects";
 import useIsMobile from '../hooks/useIsMobile';
 const ProjectDemoModal = lazy(() => import("./ProjectDemoModal.jsx"));
 
+// The demo dialog used to be rendered unconditionally, which meant React.lazy
+// fetched it the moment this section mounted — 45 KB of JS and 25 KB of CSS on
+// every visit, for a dialog most visitors never open. It is now mounted only
+// once a project is selected, and this warms the chunk during idle time so the
+// first person who does click Demo still gets it instantly.
+const warmDemoChunk = () => import("./ProjectDemoModal.jsx");
+
 /**
  * Screenshot band across the top of a project card.
  *
@@ -164,6 +171,39 @@ const ProjectBlurb = ({ text, themeColor, isMobile }) => {
 const Projects = () => {
     const isMobile = useIsMobile();
     const [selectedProject, setSelectedProject] = useState(null);
+
+    // Fetch the demo dialog ahead of time so opening one is instant, without
+    // letting it compete with anything that matters.
+    //
+    // Waiting for `load` is the part that counts on a phone. requestIdleCallback
+    // watches the main thread, not the network, so on its own it fires happily
+    // while photos and fonts are still on the wire — which is precisely the
+    // moment a spare 45 KB hurts most. Load first, then idle.
+    useEffect(() => {
+        const conn = navigator.connection;
+        // Don't spend someone's metered or 2G budget on a maybe.
+        if (conn?.saveData || /(^|-)2g$/.test(conn?.effectiveType ?? "")) return;
+
+        const cancel = window.cancelIdleCallback ?? window.clearTimeout;
+        let handle;
+
+        const schedule = () => {
+            const idle = window.requestIdleCallback
+                ?? ((fn) => window.setTimeout(fn, 2500));
+            handle = idle(warmDemoChunk, { timeout: 6000 });
+        };
+
+        if (document.readyState === "complete") {
+            schedule();
+        } else {
+            window.addEventListener("load", schedule, { once: true });
+        }
+
+        return () => {
+            window.removeEventListener("load", schedule);
+            if (handle !== undefined) cancel(handle);
+        };
+    }, []);
 
     // Color theme mapping matching the Skills Graph nodes
     const projectColors = {
@@ -473,13 +513,18 @@ const Projects = () => {
                 })}
             </div>
 
-            {/* Simulated Live Playground Dialog */}
-            <Suspense fallback={null}>
-                <ProjectDemoModal
-                    project={selectedProject}
-                    onClose={() => setSelectedProject(null)}
-                />
-            </Suspense>
+            {/* Simulated Live Playground Dialog. Mounted only while a project is
+                selected — the modal's own first statement is `if (!project)
+                return null`, so this renders exactly what it used to, minus the
+                download. */}
+            {selectedProject && (
+                <Suspense fallback={null}>
+                    <ProjectDemoModal
+                        project={selectedProject}
+                        onClose={() => setSelectedProject(null)}
+                    />
+                </Suspense>
+            )}
             </div>
 
             <style>{`

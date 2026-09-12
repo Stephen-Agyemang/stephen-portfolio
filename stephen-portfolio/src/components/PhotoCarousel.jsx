@@ -3,6 +3,10 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const ADVANCE_MS = 4500;
 const FADE_MS = 900;
+// How long to wait before pulling in the photo queued behind the current one.
+// Long enough to stay out of the way of the section's own chunk and the first
+// photo, short enough to be decoded well before the 4.5s advance needs it.
+const PREFETCH_DELAY_MS = 1200;
 
 /**
  * Auto-playing photo slideshow that fills a circular viewport.
@@ -30,6 +34,16 @@ const PhotoCarousel = ({ items, size, decorations = null, isMobile = false }) =>
 
     const hasMultiple = items.length > 1;
 
+    // Which photos have an <img> in the DOM at all.
+    //
+    // loading="lazy" is no help here: all the photos are stacked inside a frame
+    // that is itself on screen, so the browser counts every one of them as
+    // visible and fetches the whole set at once. That was 589 KB of a 728 KB
+    // mobile page load, five of the six photos being ones the visitor had not
+    // reached yet. The set only ever grows, so a photo already fetched stays
+    // put and the crossfade always has both ends of the transition mounted.
+    const [mounted, setMounted] = useState(() => new Set([0]));
+
     useEffect(() => {
         const mq = window.matchMedia?.("(prefers-reduced-motion: reduce)");
         if (!mq) return;
@@ -39,8 +53,15 @@ const PhotoCarousel = ({ items, size, decorations = null, isMobile = false }) =>
     }, []);
 
     const go = useCallback(
-        (delta) => setIndex((i) => (i + delta + items.length) % items.length),
-        [items.length]
+        (delta) => {
+            const next = (index + delta + items.length) % items.length;
+            setIndex(next);
+            // Mount on the way in. The prefetch below has usually done this
+            // already; stepping *backwards* with the arrows is the case it
+            // hasn't covered.
+            setMounted((prev) => (prev.has(next) ? prev : new Set(prev).add(next)));
+        },
+        [index, items.length]
     );
 
     // Auto-advance. Skipped for a single photo, while the visitor is
@@ -50,6 +71,18 @@ const PhotoCarousel = ({ items, size, decorations = null, isMobile = false }) =>
         const timer = setInterval(() => go(1), ADVANCE_MS);
         return () => clearInterval(timer);
     }, [hasMultiple, paused, reducedMotion, go]);
+
+    // Mount the current photo at once, and the one queued behind it a beat
+    // later so the two never compete for the same scarce mobile bandwidth.
+    useEffect(() => {
+        if (!hasMultiple) return;
+        const next = (index + 1) % items.length;
+        const timer = setTimeout(
+            () => setMounted((prev) => (prev.has(next) ? prev : new Set(prev).add(next))),
+            PREFETCH_DELAY_MS
+        );
+        return () => clearTimeout(timer);
+    }, [index, items.length, hasMultiple]);
 
     const active = items[index];
     const showArrows = hasMultiple && (hovered || reducedMotion);
@@ -104,12 +137,13 @@ const PhotoCarousel = ({ items, size, decorations = null, isMobile = false }) =>
                     boxShadow: "0 0 25px var(--card-border)",
                     boxSizing: "border-box",
                 }}>
-                    {items.map((item, i) => (
+                    {items.map((item, i) => (!mounted.has(i) ? null : (
                         <img
                             key={item.src}
                             src={item.src}
                             alt={item.alt}
                             loading="lazy"
+                            decoding="async"
                             aria-hidden={i === index ? undefined : true}
                             style={{
                                 position: "absolute",
@@ -127,7 +161,7 @@ const PhotoCarousel = ({ items, size, decorations = null, isMobile = false }) =>
                                     : `opacity ${FADE_MS}ms ease, transform ${ADVANCE_MS + FADE_MS}ms linear`,
                             }}
                         />
-                    ))}
+                    )))}
                 </div>
 
                 {decorations}

@@ -179,6 +179,12 @@
     .ambient-glow-3 {
         translate: none;
         animation: none;
+        /* Nothing moves them here any more, and `will-change: transform` on a
+           static element is pure cost: it pins each glow to its own compositor
+           texture for the life of the page. Three 600px+ surfaces under a 90px
+           blur is tens of megabytes of GPU memory a phone would rather spend
+           on the page itself. */
+        will-change: auto;
     }
 
     .bg-floor {
@@ -194,5 +200,6 @@
     .ambient-glow-3 {
         translate: none;
         animation: none;
+        will-change: auto;
     }
 }
