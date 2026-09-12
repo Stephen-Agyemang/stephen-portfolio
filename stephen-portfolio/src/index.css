@@ -217,6 +217,19 @@ body {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
+/* iOS Safari zooms the page in when a focused field's text is under 16px, and
+   it doesn't zoom back out. That zoom is what left the full-screen chat
+   pannable with its header off the top. Every field on the site is 0.75-0.95rem,
+   so phone-width and touch layouts get 16px; desktop keeps the compact size.
+   !important because the chat input sets its size inline. */
+@media (max-width: 767px), (hover: none) and (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
 /* ============================================================
    CYBER METRICS & TELEMETRY SECTION HEADERS
    ============================================================ */

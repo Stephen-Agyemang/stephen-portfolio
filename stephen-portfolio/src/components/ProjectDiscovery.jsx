@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { chatWithAIStream } from '../services/aiService';
-import { FaRobot, FaTimes, FaPaperPlane, FaArrowRight } from 'react-icons/fa';
+import { FaRobot, FaTimes, FaPaperPlane, FaArrowRight, FaRedo } from 'react-icons/fa';
 import { projects } from '../data/projects';
 import useIsMobile from '../hooks/useIsMobile';
 
@@ -8,7 +8,6 @@ import useIsMobile from '../hooks/useIsMobile';
 const ProjectDiscovery = () => {
     const isMobile = useIsMobile();
     const [isOpen, setIsOpen] = useState(false);
-    const [isHovered, setIsHovered] = useState(false);
     const [query, setQuery] = useState('');
     const [messages, setMessages] = useState([
         { type: 'bot', content: "Hey! Ask me about my projects, skills, or experience or let's just talk!" }
@@ -17,7 +16,8 @@ const ProjectDiscovery = () => {
     // The API is serverless, so an idle-cold first request is slow but fine.
     // Saying so beats a silent bubble that reads as the assistant being broken.
     const [warming, setWarming] = useState(false);
-    const messagesEndRef = useRef(null);
+    const panelRef = useRef(null);
+    const messagesAreaRef = useRef(null);
     const lastRequestTimeRef = useRef(0);
     const RATE_LIMIT_MS = 2000;
 
@@ -29,19 +29,53 @@ const ProjectDiscovery = () => {
 
     // Chat history resets on page reload (no localStorage persistence)
 
+    // Scroll the message list itself. scrollIntoView also scrolls every
+    // scrollable ancestor, which on a phone dragged the page behind the chat.
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        const area = messagesAreaRef.current;
+        area?.scrollTo({ top: area.scrollHeight, behavior: "smooth" });
     };
 
     useEffect(() => {
         scrollToBottom();
     }, [messages, isOpen]);
 
-    const handleSearch = async (e) => {
-        e.preventDefault();
+    // Full-screen on a phone. The panel tracks the visible area instead of
+    // 100dvh, which ignores the keyboard on iOS: the keyboard covered the
+    // input or pushed the header off the top. The page underneath holds still.
+    useEffect(() => {
+        if (!isOpen || !isMobile) return;
+        const root = document.documentElement;
+        const previousOverflow = root.style.overflow;
+        root.style.overflow = "hidden";
 
+        const vv = window.visualViewport;
+        const panel = panelRef.current;
+        const sync = () => {
+            panel.style.setProperty("--chat-top", `${vv.offsetTop}px`);
+            panel.style.setProperty("--chat-height", `${vv.height}px`);
+        };
+        // The keyboard shrinks the list, so keep the newest message in view.
+        const onResize = () => {
+            sync();
+            const area = messagesAreaRef.current;
+            if (area) area.scrollTop = area.scrollHeight;
+        };
+        if (vv && panel) {
+            sync();
+            vv.addEventListener("resize", onResize);
+            vv.addEventListener("scroll", sync);
+        }
+        return () => {
+            vv?.removeEventListener("resize", onResize);
+            vv?.removeEventListener("scroll", sync);
+            root.style.overflow = previousOverflow;
+        };
+    }, [isOpen, isMobile]);
+
+    // Returns false, and says so in the chat, when the last request was too recent.
+    const claimRequestSlot = () => {
         const now = Date.now();
-
         if (now - lastRequestTimeRef.current < RATE_LIMIT_MS) {
             setMessages(prev => [
                 ...prev,
@@ -49,19 +83,35 @@ const ProjectDiscovery = () => {
                     type: 'bot',
                     content: "Please wait a moment before sending another message."
                 }
-            ])
-            return;
+            ]);
+            return false;
         }
         lastRequestTimeRef.current = now;
-        if (!query.trim()) return;
+        return true;
+    };
 
+    const handleSearch = (e) => {
+        e.preventDefault();
+        // Checked before the rate limiter so an empty submit doesn't use up its
+        // window. One reply at a time: a second stream writes into the same bubble.
+        if (!query.trim() || loading || !claimRequestSlot()) return;
         const userMsg = query;
         setQuery('');
+        streamReply(userMsg);
+    };
 
-        setMessages(prev => [...prev, { type: 'user', content: userMsg }]);
+    const retryReply = (userMsg) => {
+        if (loading || !claimRequestSlot()) return;
+        streamReply(userMsg, { retry: true });
+    };
+
+    const streamReply = async (userMsg, { retry = false } = {}) => {
         setLoading(true);
-
-        setMessages(prev => [...prev, { type: 'bot', content: '' }]);
+        // A retry swaps the failed reply for a fresh placeholder; a new message
+        // gets its own bubble first.
+        setMessages(prev => retry
+            ? [...prev.slice(0, -1), { type: 'bot', content: '' }]
+            : [...prev, { type: 'user', content: userMsg }, { type: 'bot', content: '' }]);
 
         let accumulatedContent = '';
         const warmupTimer = setTimeout(() => setWarming(true), 4000);
@@ -98,20 +148,41 @@ const ProjectDiscovery = () => {
                     }
                 }
             });
+
+            if (!accumulatedContent.trim()) {
+                const empty = new Error("That reply came back empty. Give it another try.");
+                empty.retryable = true;
+                throw empty;
+            }
         } catch (err) {
             console.error("AI Chat Error:", err);
-            setMessages(prev => [...prev, {
+            const failure = {
                 type: 'bot',
                 // Rate-limit replies explain what to do next, so show them as-is
                 // rather than burying them under the generic failure message.
-                content: err?.message || "Sorry, I had trouble connecting to my brain."
-            }]);
+                content: err?.message || "Sorry, I had trouble connecting to my brain.",
+                retryWith: err?.retryable ? userMsg : undefined
+            };
+            // Fill the empty bubble opened for this reply. Appending instead left
+            // it behind as a blank stray above the error. A reply that stalled
+            // partway keeps its text and gets the error underneath.
+            setMessages(prev => {
+                const last = prev[prev.length - 1];
+                const isEmptyPlaceholder = last?.type === 'bot' && !last.content && !last.projects;
+                return isEmptyPlaceholder ? [...prev.slice(0, -1), failure] : [...prev, failure];
+            });
         } finally {
             clearTimeout(warmupTimer);
             setWarming(false);
             setLoading(false);
         }
     };
+
+    // On a phone the button drops its label and shrinks to an icon: the full
+    // pill sat on top of whatever card was scrolled under it.
+    const fabSize = isMobile ? 56 : 60;
+    const fabCompact = isMobile || isOpen;
+    const canSend = Boolean(query.trim()) && !loading;
 
     return (
         <>
@@ -120,15 +191,17 @@ const ProjectDiscovery = () => {
                 id="ai-assistant-btn"
                 onClick={() => setIsOpen(!isOpen)}
                 className={`btn-ai-assistant${isOpen ? " is-open" : ""}`}
+                aria-label={isOpen ? "Close AI assistant" : "Open AI assistant"}
+                aria-expanded={isOpen}
                 style={{
                     position: "fixed",
-                    bottom: "30px",
-                    right: "30px",
+                    bottom: isMobile ? "calc(16px + env(safe-area-inset-bottom, 0px))" : "30px",
+                    right: isMobile ? "16px" : "30px",
                     display: isMobile && isOpen ? "none" : "flex",
-                    width: isOpen ? "60px" : "auto",
-                    height: "60px",
-                    padding: isOpen ? "0" : "0 25px",
-                    borderRadius: "30px",
+                    width: fabCompact ? `${fabSize}px` : "auto",
+                    height: `${fabSize}px`,
+                    padding: fabCompact ? "0" : "0 25px",
+                    borderRadius: `${fabSize / 2}px`,
                     background: "var(--color-monica)",
                     backdropFilter: "blur(8px)",
                     WebkitBackdropFilter: "blur(8px)",
@@ -147,6 +220,8 @@ const ProjectDiscovery = () => {
             >
                 {isOpen ? (
                     <FaTimes style={{ fontSize: "1.5rem" }} />
+                ) : isMobile ? (
+                    <FaRobot style={{ fontSize: "1.5rem" }} />
                 ) : (
                     <>
                         <FaRobot style={{ fontSize: "1.5rem", marginRight: "10px" }} />
@@ -157,15 +232,15 @@ const ProjectDiscovery = () => {
 
             {/* Chat Window */}
             {isOpen && (
-                <div style={{
+                <div ref={panelRef} style={{
                     position: "fixed",
                     ...(isMobile ? {
-                        top: 0,
+                        // Set from visualViewport by the effect above.
+                        top: "var(--chat-top, 0px)",
                         left: 0,
                         right: 0,
-                        bottom: 0,
                         width: "100%",
-                        height: "100dvh",
+                        height: "var(--chat-height, 100dvh)",
                         borderRadius: 0,
                     } : {
                         bottom: "100px",
@@ -183,7 +258,8 @@ const ProjectDiscovery = () => {
                     zIndex: 1001,
                     overflow: "hidden",
                     border: isMobile ? "none" : "1px solid var(--chat-border)",
-                    transition: "all 0.4s ease"
+                    // Not `all`: top and height follow the keyboard and mustn't lag it.
+                    transition: "background 0.4s ease, border-color 0.4s ease"
                 }}>
                     {/* Header */}
                     <div style={{
@@ -203,6 +279,7 @@ const ProjectDiscovery = () => {
                         {isMobile && (
                             <button
                                 onClick={() => setIsOpen(false)}
+                                aria-label="Close AI assistant"
                                 style={{
                                     background: "none",
                                     border: "none",
@@ -221,12 +298,15 @@ const ProjectDiscovery = () => {
                     </div>
 
                     {/* Messages Area */}
-                    <div 
+                    <div
+                        ref={messagesAreaRef}
                         className="custom-scrollbar"
                         style={{
                             flex: 1,
                             padding: "20px",
                             overflowY: "auto",
+                            // Reaching the end of the list mustn't hand the swipe to the page.
+                            overscrollBehavior: "contain",
                             background: "var(--chat-msg-area)",
                             display: "flex",
                             flexDirection: "column",
@@ -234,7 +314,9 @@ const ProjectDiscovery = () => {
                             transition: "background 0.4s ease"
                         }}
                     >
-                        {messages.map((msg, idx) => (
+                        {/* A reply's bubble stays hidden until its first words arrive;
+                            the Thinking line below covers the wait. */}
+                        {messages.map((msg, idx) => !msg.content && !msg.projects ? null : (
                             <div key={idx} style={{
                                 alignSelf: msg.type === 'user' ? "flex-end" : "flex-start",
                                 maxWidth: "85%",
@@ -291,6 +373,31 @@ const ProjectDiscovery = () => {
                                         ))}
                                     </div>
                                 )}
+
+                                {msg.retryWith && idx === messages.length - 1 && !loading && (
+                                    <button
+                                        type="button"
+                                        onClick={() => retryReply(msg.retryWith)}
+                                        className="interactive-scale-sm"
+                                        style={{
+                                            marginTop: "8px",
+                                            display: "inline-flex",
+                                            alignItems: "center",
+                                            gap: "6px",
+                                            padding: "6px 12px",
+                                            borderRadius: "12px",
+                                            border: "1px solid var(--chat-user-border)",
+                                            background: "var(--chat-user-bg)",
+                                            color: "var(--chat-user-text)",
+                                            fontFamily: "var(--font-mono)",
+                                            fontSize: "0.75rem",
+                                            fontWeight: "bold",
+                                            cursor: "pointer"
+                                        }}
+                                    >
+                                        <FaRedo style={{ fontSize: "0.7rem" }} /> Try again
+                                    </button>
+                                )}
                             </div>
                         ))}
                         {loading && (
@@ -298,7 +405,6 @@ const ProjectDiscovery = () => {
                                 {warming ? 'SEC_AI // Waking up, first request is slow...' : 'SEC_AI // Thinking...'}
                             </div>
                         )}
-                        <div ref={messagesEndRef} />
                     </div>
 
                     {/* Input Area */}
@@ -315,6 +421,8 @@ const ProjectDiscovery = () => {
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             placeholder="Ask about projects, skills..."
+                            aria-label="Message the AI assistant"
+                            enterKeyHint="send"
                             style={{
                                 flex: 1,
                                 padding: "10px 15px",
@@ -332,10 +440,11 @@ const ProjectDiscovery = () => {
                         />
                         <button
                             type="submit"
-                            disabled={!query.trim()}
+                            disabled={!canSend}
+                            aria-label="Send message"
                             className="interactive-scale-sm"
                             style={{
-                                background: !query.trim() ? "var(--chat-border)" : "var(--chat-user-text)",
+                                background: !canSend ? "var(--chat-border)" : "var(--chat-user-text)",
                                 color: "var(--bg-color)",
                                 border: "none",
                                 borderRadius: "12px",
@@ -344,18 +453,18 @@ const ProjectDiscovery = () => {
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                cursor: !query.trim() ? "not-allowed" : "pointer",
+                                cursor: !canSend ? "not-allowed" : "pointer",
                                 transition: "all 0.2s ease",
                                 boxShadow: "none",
                                 outline: 'none'
                             }}
                             onMouseOver={e => {
-                                if (query.trim()) {
+                                if (canSend) {
                                     e.currentTarget.style.filter = "brightness(0.9)";
                                 }
                             }}
                             onMouseOut={e => {
-                                if (query.trim()) {
+                                if (canSend) {
                                     e.currentTarget.style.filter = "brightness(1)";
                                 }
                             }}
@@ -371,6 +480,13 @@ const ProjectDiscovery = () => {
                 }
                 .btn-ai-assistant:not(.is-open) {
                     animation: ai-pulse-ring 2.2s ease-out infinite, ai-shake 5s ease-in-out infinite;
+                }
+                /* On a phone the button floats over whatever is being read; the
+                   pulse is enough without a shake every five seconds as well. */
+                @media (max-width: 767px), (hover: none) {
+                    .btn-ai-assistant:not(.is-open) {
+                        animation: ai-pulse-ring 2.2s ease-out infinite;
+                    }
                 }
                 @keyframes ai-pulse-ring {
                     0%   { box-shadow: 0 0 20px rgba(167,210,115,0.22), 0 8px 30px rgba(0,0,0,0.12), 0 0 0 0 rgba(167,210,115,0.55); }
@@ -389,12 +505,16 @@ const ProjectDiscovery = () => {
                 @media (prefers-reduced-motion: reduce) {
                     .btn-ai-assistant:not(.is-open) { animation: none; }
                 }
-                .btn-ai-assistant:hover {
-                    transform: scale(1.08) translateY(-2px) !important;
-                    background: var(--color-monica) !important;
-                    color: var(--bg-color) !important;
-                    border-color: var(--color-monica) !important;
-                    box-shadow: 0 12px 35px rgba(167, 210, 115, 0.3) !important;
+                /* Hover lift only where hover exists: a tap on iOS leaves :hover
+                   stuck on, which kept the button scaled up after the tap. */
+                @media (hover: hover) {
+                    .btn-ai-assistant:hover {
+                        transform: scale(1.08) translateY(-2px) !important;
+                        background: var(--color-monica) !important;
+                        color: var(--bg-color) !important;
+                        border-color: var(--color-monica) !important;
+                        box-shadow: 0 12px 35px rgba(167, 210, 115, 0.3) !important;
+                    }
                 }
             `}</style>
         </>

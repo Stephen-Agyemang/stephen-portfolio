@@ -27,6 +27,13 @@ function isAbort(error) {
     return error?.name === "AbortError" || error?.name === "TimeoutError";
 }
 
+/** Timeouts and dropped connections are worth a resend; a rate limit is not. */
+function retryableError(message, cause) {
+    const error = new Error(message, { cause });
+    error.retryable = true;
+    return error;
+}
+
 /**
  * Streams a chat reply.
  *
@@ -57,7 +64,12 @@ export async function chatWithAIStream(userMessage, projects, onChunk, { onStatu
 
         // Rate-limit and validation failures return JSON, not a stream. Without this
         // the error body would be piped straight into the chat bubble as raw text.
-        if (!res.ok) throw new Error(await readErrorMessage(res));
+        if (!res.ok) {
+            const error = new Error(await readErrorMessage(res));
+            // A 5xx is the server tripping; a 429 or 400 would say the same thing again.
+            error.retryable = res.status >= 500;
+            throw error;
+        }
 
         if (!res.body) throw new Error("No response body");
 
@@ -97,7 +109,10 @@ export async function chatWithAIStream(userMessage, projects, onChunk, { onStatu
 
         flush(true);
     } catch (error) {
-        if (isAbort(error)) throw new Error(TIMEOUT_ERROR);
+        if (isAbort(error)) throw retryableError(TIMEOUT_ERROR, error);
+        // fetch rejects with a TypeError when the connection drops, and its raw
+        // message ("Load failed", "Failed to fetch") means nothing to a visitor.
+        if (error instanceof TypeError) throw retryableError(FALLBACK_ERROR, error);
         throw error;
     } finally {
         clearTimeout(timer);
