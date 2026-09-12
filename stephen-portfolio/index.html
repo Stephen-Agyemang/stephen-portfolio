@@ -37,10 +37,17 @@
       gtag('config', 'G-YM0S6YT9E6');
     </script>
     <script>
+      // Opt out of the browser restoring a previous scroll position on reload.
+      // Inline and in <head> so it applies before the first paint, which the
+      // equivalent line in App.jsx cannot do.
+      //
+      // There is deliberately no scrollTo(0, 0) here. It used to follow, and it
+      // ran on every load — including loads that carried a #hash — so arriving
+      // at /#projects scrolled straight back to the top. Opting out of restore
+      // is already enough to land at the top on an ordinary reload.
       if (history.scrollRestoration) {
         history.scrollRestoration = 'manual';
       }
-      window.scrollTo(0, 0);
     </script>
     <script>
       window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };

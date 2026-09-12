@@ -37,7 +37,80 @@ const SectionFallback = ({ minHeight = "70vh" }) => (
   <div aria-hidden="true" style={{ minHeight }} />
 );
 
+// How many consecutive frames the document height must hold steady before a
+// deep link is considered to have landed.
+const SETTLE_FRAMES = 8;
+// Give up after this long rather than fighting a page that never stops growing.
+const DEEP_LINK_TIMEOUT_MS = 8000;
+
+/**
+ * Scroll to the section named by the URL hash on a fresh load.
+ *
+ * The browser resolves #projects as soon as it finishes parsing the document,
+ * but every section below the hero is React.lazy() — the element does not
+ * exist yet, so the jump finds nothing and silently gives up, dropping the
+ * visitor at the top. Only externally shared links hit this; the navbar
+ * scrolls imperatively and never writes a hash.
+ *
+ * Two details matter beyond "wait for the element":
+ *
+ *  - It re-scrolls each frame instead of once. Sections *above* the target are
+ *    still reserved-height placeholders when it first mounts, and each one that
+ *    resolves grows to its real height and pushes the target down, so a single
+ *    scroll would leave the visitor short of it.
+ *  - Any real scroll input aborts it. Otherwise chasing a still-growing page
+ *    would fight someone who has already started scrolling — the same way the
+ *    old scrollTo(0, 0) used to swallow the first flick.
+ */
+function useHashDeepLink() {
+  useEffect(() => {
+    const id = decodeURIComponent(window.location.hash.slice(1));
+    if (!id) return;
+
+    let frame = 0;
+    let lastHeight = -1;
+    let stable = 0;
+    const deadline = Date.now() + DEEP_LINK_TIMEOUT_MS;
+
+    const stop = () => {
+      if (frame) cancelAnimationFrame(frame);
+      frame = 0;
+      for (const evt of ["wheel", "touchstart", "keydown"]) {
+        window.removeEventListener(evt, stop);
+      }
+    };
+
+    const settle = () => {
+      const target = document.getElementById(id);
+      const height = document.documentElement.scrollHeight;
+
+      if (target) {
+        // 'instant', not 'auto' — html carries scroll-behavior: smooth, and
+        // 'auto' defers to it, which would animate the visitor down several
+        // thousand pixels instead of putting them there.
+        target.scrollIntoView({ behavior: "instant", block: "start" });
+        stable = height === lastHeight ? stable + 1 : 0;
+      }
+      lastHeight = height;
+
+      if (stable >= SETTLE_FRAMES || Date.now() > deadline) {
+        stop();
+        return;
+      }
+      frame = requestAnimationFrame(settle);
+    };
+
+    for (const evt of ["wheel", "touchstart", "keydown"]) {
+      window.addEventListener(evt, stop, { passive: true, once: true });
+    }
+    frame = requestAnimationFrame(settle);
+    return stop;
+  }, []);
+}
+
 function App() {
+  useHashDeepLink();
+
   const [activeSection, setActiveSection] = useState("home");
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {

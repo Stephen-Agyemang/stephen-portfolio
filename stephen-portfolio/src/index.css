@@ -195,6 +195,18 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Keep an anchored section clear of the fixed navbar. Without this a jump to
+   #projects puts the section's top edge at the viewport's top edge, which is
+   underneath the bar — the heading lands hidden. Applies to nav clicks and to
+   #hash deep links alike. Skills.css sets its own matching value. */
+#about,
+#projects,
+#experience,
+#credentials,
+#contact-assistant {
+  scroll-margin-top: 80px;
+}
+
 body {
   margin: 0;
   min-width: 320px;
