@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./Skills.css";
 import useIsMobile from '../hooks/useIsMobile';
-import antigravityIcon from "../assets/antigravity_small.png";
-import { 
+import {
   FaVideo, FaGamepad, FaUtensils, FaChartLine, FaPalette,
   FaCogs, FaDatabase, FaNetworkWired, FaCheckCircle, FaShieldAlt, FaUserTie
 } from 'react-icons/fa';
@@ -101,11 +100,36 @@ const MOBILE_DECK = [
   { title: "DevOps & DB", ids: ["docker", "kubernetes", "terraform", "aws", "gvisor", "git", "postgresql", "supabase", "redis", "firebase", "cloudrun"] }
 ];
 
+// The mobile trace reads the same links the desktop graph draws, so the two
+// views can't disagree about which project used which tool.
+const NODE_BY_ID = Object.fromEntries(initialNodes.map(n => [n.id, n]));
+const PROJECT_NODES = initialNodes.filter(n => n.isProject);
+const SKILL_COUNT = initialNodes.length - PROJECT_NODES.length;
+const PROJECTS_BY_SKILL = Object.fromEntries(
+  initialNodes
+    .filter(n => !n.isProject)
+    .map(skill => [
+      skill.id,
+      PROJECT_NODES.filter(p => initialLinks.some(l => l.source === p.id && l.target === skill.id))
+    ])
+);
+const TOOL_COUNT_BY_PROJECT = Object.fromEntries(
+  PROJECT_NODES.map(p => [p.id, initialLinks.filter(l => l.source === p.id).length])
+);
+const isUsedIn = (skillId, projectId) => PROJECTS_BY_SKILL[skillId].some(p => p.id === projectId);
+
 const Skills = () => {
   const isMobile = useIsMobile();
   const [nodes, setNodes] = useState(initialNodes);
   const [hoveredNode, setHoveredNode] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
+
+  // Mobile trace: the project whose stack is lit up, and the skill card that's
+  // open to list the projects it went into.
+  const [tracedProject, setTracedProject] = useState(null);
+  const [openSkill, setOpenSkill] = useState(null);
+  const traced = tracedProject ? NODE_BY_ID[tracedProject] : null;
+  const toggleTrace = (projectId) => setTracedProject(current => current === projectId ? null : projectId);
 
   // Dragging states
   const [draggedNode, setDraggedNode] = useState(null);
@@ -293,34 +317,121 @@ const Skills = () => {
         Skills
       </h2>
       <p style={{ margin: 0, fontSize: isMobile ? "0.9rem" : "1.05rem", color: "var(--text-color)", maxWidth: "600px", fontFamily: "var(--font-mono)" }}>
-        Stephen's interactive skill network showing exactly how technical tools were applied across each core project.
+        Stephen's interactive skill network, showing which tools went into each core project.
       </p>
 
       {isMobile ? (
         /* ============================================================
-           A. Mobile Fallback Deck (Clean lists, no physics)
+           A. Mobile Trace Deck: the graph's hover-trace, rebuilt for
+              touch. Tap a project to light up its stack; tap a skill
+              to list the projects it went into.
            ============================================================ */
-        <div className="skills-mobile-deck">
+        <div
+          className="skills-mobile-deck"
+          style={traced ? { '--trace-color': traced.color } : undefined}
+        >
+          <div className="skills-trace-panel">
+            <p className="skills-trace-hint" aria-live="polite">
+              {traced
+                ? `${traced.label} uses ${TOOL_COUNT_BY_PROJECT[traced.id]} of ${SKILL_COUNT} tools. Tap it again to clear.`
+                : "Tap a project to trace its stack, or tap a tool to see which projects used it."}
+            </p>
+            <div className="skills-trace-rail">
+              {PROJECT_NODES.map(project => {
+                const isOn = tracedProject === project.id;
+                return (
+                  <button
+                    key={project.id}
+                    type="button"
+                    className={`skills-trace-chip${isOn ? ' is-on' : ''}`}
+                    style={{ '--trace-color': project.color }}
+                    aria-pressed={isOn}
+                    onClick={() => toggleTrace(project.id)}
+                  >
+                    <span className="skills-trace-chip-icon" aria-hidden="true">
+                      {renderProjectIcon(project.icon)}
+                    </span>
+                    {project.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {MOBILE_DECK.map(category => (
             <div key={category.title} className="skills-mobile-category">
-              <h3>{category.title}</h3>
+              <h3>
+                {category.title}
+                {traced && (
+                  <span className="skills-mobile-category-count">
+                    {category.ids.filter(id => isUsedIn(id, traced.id)).length}/{category.ids.length}
+                  </span>
+                )}
+              </h3>
               <div className="skills-mobile-grid">
                 {category.ids.map(id => {
-                  const n = initialNodes.find(node => node.id === id);
+                  const n = NODE_BY_ID[id];
                   if (!n) return null;
+                  const usedIn = PROJECTS_BY_SKILL[id];
+                  const isOpen = openSkill === id;
+                  const isTraced = traced && isUsedIn(id, traced.id);
+                  const cardState = [
+                    isOpen && 'is-open',
+                    isTraced && 'is-traced',
+                    traced && !isTraced && 'is-dimmed'
+                  ].filter(Boolean).join(' ');
                   return (
-                    <div key={id} className="skills-mobile-card">
-                      {n.iconClass ? (
-                        <i className={`${n.iconClass} skills-mobile-card-icon`} />
-                      ) : (
-                        <span className="skills-mobile-card-icon" style={{ color: n.color, display: 'flex' }}>
-                          {renderSkillIcon(n.icon)}
+                    <div key={id} className={`skills-mobile-card ${cardState}`}>
+                      <button
+                        type="button"
+                        className="skills-mobile-card-toggle"
+                        aria-expanded={isOpen}
+                        onClick={() => setOpenSkill(isOpen ? null : id)}
+                      >
+                        {n.iconClass ? (
+                          <i className={`${n.iconClass} skills-mobile-card-icon`} aria-hidden="true" />
+                        ) : (
+                          <span className="skills-mobile-card-icon" style={{ color: n.color, display: 'flex' }} aria-hidden="true">
+                            {renderSkillIcon(n.icon)}
+                          </span>
+                        )}
+                        <span className="skills-mobile-card-text">
+                          <span className="skills-mobile-card-label">{n.label}</span>
+                          {/* One dot per project, in the rail's colours. */}
+                          {usedIn.length > 0 ? (
+                            <span className="skills-mobile-card-dots" aria-hidden="true">
+                              {usedIn.map(p => (
+                                <span key={p.id} className="skills-mobile-dot" style={{ background: p.color }} />
+                              ))}
+                            </span>
+                          ) : (
+                            <span className="skills-mobile-card-status">{n.status}</span>
+                          )}
                         </span>
+                      </button>
+                      {isOpen && (
+                        <div className="skills-mobile-card-panel">
+                          {usedIn.length > 0 ? (
+                            <>
+                              <span className="skills-mobile-card-status">{n.status}</span>
+                              {usedIn.map(p => (
+                                <button
+                                  key={p.id}
+                                  type="button"
+                                  className="skills-mobile-project-chip"
+                                  style={{ '--trace-color': p.color }}
+                                  aria-pressed={tracedProject === p.id}
+                                  onClick={() => toggleTrace(p.id)}
+                                >
+                                  {p.label}
+                                </button>
+                              ))}
+                            </>
+                          ) : (
+                            <span className="skills-mobile-card-none">Not in a featured project yet.</span>
+                          )}
+                        </div>
                       )}
-                      <div>
-                        <span className="skills-mobile-card-label">{n.label}</span>
-                        <span className="skills-mobile-card-status">{n.status}</span>
-                      </div>
                     </div>
                   );
                 })}

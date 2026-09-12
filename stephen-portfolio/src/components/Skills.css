@@ -220,6 +220,10 @@
   }
 
   .skills-mobile-category h3 {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
     margin: 0 0 12px;
     font-size: 1.1rem;
     color: var(--color-monica);
@@ -231,46 +235,212 @@
     transition: color 0.4s ease, border-bottom 0.4s ease;
   }
 
+  .skills-mobile-category-count {
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    color: var(--text-color);
+  }
+
+  /* Project trace rail: the touch version of hovering a project node. */
+  .skills-trace-panel {
+    background: var(--card-bg-init);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 16px;
+    transition: background 0.4s ease, border 0.4s ease;
+  }
+
+  .skills-trace-hint {
+    margin: 0 0 12px;
+    /* Two lines either way, so the rail doesn't jump when the text swaps. */
+    min-height: 2.9em;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    line-height: 1.45;
+    color: var(--text-color);
+  }
+
+  .skills-trace-rail {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .skills-trace-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    margin: 0;
+    padding: 8px 12px;
+    border: 1px solid var(--btn-secondary-border);
+    border-radius: 12px;
+    background: var(--btn-secondary-bg);
+    color: var(--text-title);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+
+  .skills-trace-chip-icon {
+    display: flex;
+    font-size: 1rem;
+    color: var(--trace-color);
+  }
+
+  .skills-trace-chip.is-on {
+    border-color: var(--trace-color);
+    background: color-mix(in srgb, var(--trace-color) 16%, transparent);
+  }
+
   .skills-mobile-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
+    /* An opened card grows on its own; stretching its row-mate to match
+       would leave an empty box beside it. */
+    align-items: start;
   }
 
   .skills-mobile-card {
     background: var(--btn-secondary-bg);
     border: 1px solid var(--btn-secondary-border);
     border-radius: 12px;
-    padding: 12px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  }
+
+  /* No :hover state here: on iOS a tap leaves :hover stuck on, so the card
+     would stay lit after the finger lifts. State comes from the classes. */
+  .skills-mobile-card-toggle {
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: all 0.2s ease;
+    width: 100%;
+    min-height: 44px;
+    margin: 0;
+    padding: 12px;
+    border: 0;
+    border-radius: inherit;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .skills-mobile-card:hover {
+  .skills-mobile-card.is-open {
     border-color: var(--color-monica);
-    box-shadow: 0 0 15px rgba(167, 210, 115, 0.1);
+  }
+
+  .skills-mobile-card.is-traced {
+    border-color: var(--trace-color);
+    box-shadow: 0 0 14px color-mix(in srgb, var(--trace-color) 25%, transparent);
+  }
+
+  .skills-mobile-card.is-dimmed {
+    opacity: 0.35;
+  }
+
+  /* A card opened mid-trace is being read, so it comes back to full strength. */
+  .skills-mobile-card.is-dimmed.is-open {
+    opacity: 1;
   }
 
   .skills-mobile-card-icon {
+    flex-shrink: 0;
     font-size: 1.4rem;
   }
 
+  .skills-mobile-card-text {
+    min-width: 0;
+  }
+
   .skills-mobile-card-label {
+    display: block;
     font-size: 0.78rem;
     font-weight: 600;
     color: var(--text-color);
     transition: color 0.4s ease;
   }
 
+  .skills-mobile-card-dots {
+    display: flex;
+    gap: 4px;
+    margin-top: 5px;
+  }
+
+  .skills-mobile-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+  }
+
   .skills-mobile-card-status {
-    font-size: 0.52rem;
+    font-size: 0.62rem;
     color: var(--color-monica);
     font-family: var(--font-mono);
     display: block;
-    margin-top: 1px;
+    margin-top: 2px;
     opacity: 0.85;
     transition: color 0.4s ease;
+  }
+
+  .skills-mobile-card-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 0 12px 12px;
+  }
+
+  .skills-mobile-project-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 36px;
+    margin: 0;
+    padding: 6px 8px;
+    border: 1px solid var(--btn-secondary-border);
+    border-radius: 8px;
+    background: none;
+    color: var(--text-title);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .skills-mobile-project-chip::before {
+    content: "";
+    flex-shrink: 0;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--trace-color);
+  }
+
+  .skills-mobile-project-chip[aria-pressed="true"] {
+    border-color: var(--trace-color);
+    background: color-mix(in srgb, var(--trace-color) 16%, transparent);
+  }
+
+  .skills-mobile-card-none {
+    font-size: 0.66rem;
+    font-family: var(--font-mono);
+    color: var(--text-color);
+    opacity: 0.8;
+  }
+
+  .skills-trace-chip:focus-visible,
+  .skills-mobile-card-toggle:focus-visible,
+  .skills-mobile-project-chip:focus-visible {
+    outline: 2px solid var(--color-monica);
+    outline-offset: 2px;
   }
 }
