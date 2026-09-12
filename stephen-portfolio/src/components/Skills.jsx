@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+// Before Skills.css, where the CDN stylesheet it replaces used to sit in the cascade.
+import "./devicon.css";
 import "./Skills.css";
 import useIsMobile from '../hooks/useIsMobile';
 import {
@@ -118,6 +120,11 @@ const TOOL_COUNT_BY_PROJECT = Object.fromEntries(
 );
 const isUsedIn = (skillId, projectId) => PROJECTS_BY_SKILL[skillId].some(p => p.id === projectId);
 
+// The graph counts as settled once no node has moved more than REST_STEP_PX
+// in REST_FRAMES frames running (half a second), a drift nobody can see.
+const REST_STEP_PX = 0.02;
+const REST_FRAMES = 30;
+
 const Skills = () => {
   const isMobile = useIsMobile();
   const [nodes, setNodes] = useState(initialNodes);
@@ -136,6 +143,19 @@ const Skills = () => {
   const boardRef = useRef(null);
   const sectionRef = useRef(null);
 
+  // Frames in a row the graph has held still. Written by the physics step,
+  // read by the loop to decide whether to keep going.
+  const restFramesRef = useRef(0);
+  // Bumped on resize so a settled graph wakes up and re-fits the new board.
+  const [layoutKick, setLayoutKick] = useState(0);
+
+  useEffect(() => {
+    if (isMobile) return;
+    const onResize = () => setLayoutKick(k => k + 1);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [isMobile]);
+
   // Pause physics when section is off-screen
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -151,8 +171,15 @@ const Skills = () => {
     if (isMobile || !isVisible) return; // Disable physics on mobile or when off-screen
 
     let animationFrameId;
+    restFramesRef.current = 0;
 
     const runPhysics = () => {
+      // Once the graph has settled, stop. The loop used to run for as long as
+      // the section was on screen, re-rendering every node and edge sixty
+      // times a second to move them by nothing. A drag, a resize or scrolling
+      // back to the section starts it again.
+      if (restFramesRef.current >= REST_FRAMES) return;
+
       setNodes(prevNodes => {
         // Create a deep copy to mutate velocity & position
         const nextNodes = prevNodes.map(node => ({
@@ -233,6 +260,7 @@ const Skills = () => {
         });
 
         // D. Apply Velocity Damping and update positions
+        let maxStep = 0;
         nextNodes.forEach(node => {
           if (draggedNode === node.id) return;
 
@@ -241,6 +269,8 @@ const Skills = () => {
           node.vy *= 0.78;
 
           // Update position
+          const prevX = node.x;
+          const prevY = node.y;
           node.x += node.vx;
           node.y += node.vy;
 
@@ -248,7 +278,15 @@ const Skills = () => {
           const margin = node.isProject ? 50 : 40;
           node.x = Math.max(margin, Math.min(boardWidth - margin, node.x));
           node.y = Math.max(margin, Math.min(boardHeight - margin, node.y));
+
+          // Measured after the clamp: a node pinned against the edge keeps
+          // some velocity but doesn't move, and shouldn't hold the loop open.
+          maxStep = Math.max(maxStep, Math.abs(node.x - prevX) + Math.abs(node.y - prevY));
         });
+
+        restFramesRef.current = !draggedNode && maxStep < REST_STEP_PX
+          ? restFramesRef.current + 1
+          : 0;
 
         return nextNodes;
       });
@@ -259,7 +297,7 @@ const Skills = () => {
     runPhysics();
 
     return () => cancelAnimationFrame(animationFrameId);
-  }, [draggedNode, isMobile, isVisible]);
+  }, [draggedNode, isMobile, isVisible, layoutKick]);
 
   // 2. Drag Handlers
   const handleMouseMove = (e) => {

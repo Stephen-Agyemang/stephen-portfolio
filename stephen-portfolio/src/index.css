@@ -332,3 +332,55 @@ body {
 .interactive-scale-lg:hover:not(:disabled) {
   transform: scale(1.20) translateY(-3px) !important;
 }
+
+/* ============================================================
+   TOUCH & PHONE RENDERING BUDGET
+
+   A glass panel blurs whatever is behind it, and behind every panel here
+   is the fixed background field, which moves on every scroll frame. So
+   each panel on screen re-blurs its backdrop on every frame of every
+   scroll. A laptop GPU shrugs that off. A phone was doing it for the
+   project cards, the skill decks, the timeline and the credential cards
+   at once, at 3x pixel density, and that was the lag.
+
+   Touch devices get the same treatment as phone widths because an
+   unfolded foldable runs a phone's GPU at a width the 768px breakpoint
+   calls desktop.
+
+   Here the panels drop the blur and take a more opaque fill. What sits
+   behind them is near-flat ground, and blurring it or covering it lands
+   on almost the same colour; the extra opacity keeps the floor grid's
+   lines from reading through a card once nothing smears them.
+
+   Kept blurred: the navbar and chat panel (small, or over a page that
+   holds still while they're open) and the email card, the one surface
+   whose frosted look depends on it.
+
+   !important because several of these set the blur inline, or in a
+   component <style> tag that lands later in the cascade.
+   ============================================================ */
+@media (max-width: 767px), (hover: none) and (pointer: coarse) {
+  :root,
+  :root[data-theme="dark"] {
+    --card-bg-init: radial-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 0), linear-gradient(135deg, rgba(10, 15, 30, 0.78), rgba(15, 23, 42, 0.84));
+    --card-bg-hover: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 0), linear-gradient(135deg, rgba(10, 15, 30, 0.78), rgba(15, 23, 42, 0.84));
+  }
+
+  :root[data-theme="light"] {
+    --card-bg-init: radial-gradient(rgba(108, 154, 87, 0.015) 1px, transparent 0), linear-gradient(135deg, rgba(255, 255, 255, 0.88), rgba(241, 245, 249, 0.92));
+    --card-bg-hover: radial-gradient(rgba(108, 154, 87, 0.04) 1px, transparent 0), linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(241, 245, 249, 0.95));
+  }
+
+  .project-card,
+  .project-status-chip,
+  .xp-card,
+  .credential-card,
+  .skills-mobile-category,
+  .graph-instructions-card,
+  .btn-email-generate,
+  .sketch-sheet,
+  .hero-hud {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}

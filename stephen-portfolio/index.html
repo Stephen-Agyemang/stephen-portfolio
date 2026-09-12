@@ -21,20 +21,33 @@
     <meta name="twitter:title" content="Stephen Agyemang | Software Engineer" />
     <meta name="twitter:description" content="Explore my portfolio featuring AI-powered apps, web development projects, and software engineering expertise." />
     <meta name="twitter:image" content="https://stephenagyemang.com/og-image.png" />
-    <!-- Preconnect CDNs for ultra-low latency resource loading -->
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <!-- The skill icons are a self-hosted subset of devicon now; see
+         src/components/devicon.css. The CDN stylesheet that used to load here
+         pulled a 268 KB font for 17 icons. -->
 
-    <!-- Non-blocking Devicons stylesheet loading -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.15.1/devicon.min.css" media="print" onload="this.media='all'">
-    
     <title>Stephen Agyemang | Portfolio</title>
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YM0S6YT9E6"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-YM0S6YT9E6');
+
+      // gtag.js is 175 KB compressed, more JavaScript than the whole site, and
+      // an `async` tag still downloads and runs it in the middle of the first
+      // render, where a phone needs the bandwidth and the main thread for the
+      // page itself. So it waits for the load event, then for idle. The calls
+      // above just queue in dataLayer and are sent once it arrives; the cost is
+      // missing a visitor who leaves within the first couple of seconds.
+      window.addEventListener('load', function () {
+        var idle = window.requestIdleCallback || function (fn) { return setTimeout(fn, 1500); };
+        idle(function () {
+          var tag = document.createElement('script');
+          tag.async = true;
+          tag.src = 'https://www.googletagmanager.com/gtag/js?id=G-YM0S6YT9E6';
+          document.head.appendChild(tag);
+        }, { timeout: 4000 });
+      }, { once: true });
     </script>
     <script>
       // Opt out of the browser restoring a previous scroll position on reload.

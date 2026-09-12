@@ -66,6 +66,7 @@ const Hero = () => {
                 }}
             >
                 <div
+                    className="hero-hud"
                     style={{
                         background: "var(--btn-secondary-bg)",
                         border: "1px solid var(--btn-secondary-border)",

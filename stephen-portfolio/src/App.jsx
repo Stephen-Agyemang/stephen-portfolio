@@ -111,7 +111,6 @@ function useHashDeepLink() {
 function App() {
   useHashDeepLink();
 
-  const [activeSection, setActiveSection] = useState("home");
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('theme') || 'dark';
@@ -126,46 +125,6 @@ function App() {
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-  };
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const home = document.getElementById("home");
-      const about = document.getElementById("about");
-      const projects = document.getElementById("projects");
-      const skills = document.getElementById("skills");
-      const contact = document.getElementById("contact-assistant");
-
-      const scrollPos = window.scrollY + 200; // Dynamic offset
-
-      let current = "home";
-
-      if (home && about && projects && skills) {
-        if (contact && scrollPos >= contact.offsetTop) {
-          current = "contact";
-        } else if (scrollPos >= projects.offsetTop) {
-          current = "projects";
-        } else if (scrollPos >= skills.offsetTop) {
-          current = "skills";
-        } else if (scrollPos >= about.offsetTop) {
-          current = "about";
-        } else {
-          current = "home";
-        }
-      }
-      setActiveSection(current);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const scrollToSection = (id) => {
-    const target = document.getElementById(id);
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
   };
 
   return (

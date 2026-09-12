@@ -1,16 +1,73 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { chatWithAIStream } from '../services/aiService';
-import { FaRobot, FaTimes, FaPaperPlane, FaArrowRight, FaRedo } from 'react-icons/fa';
+import { FaRobot, FaTimes, FaPaperPlane, FaArrowRight, FaRedo, FaGithub } from 'react-icons/fa';
 import { projects } from '../data/projects';
+import { SITE_SECTIONS } from '../data/siteSections';
 import useIsMobile from '../hooks/useIsMobile';
 
+// "MoNiCa.Ai" -> "monica-ai", "#contact-assistant" -> "contact-assistant"
+const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+// A marker streams in a few characters at a time. Trimming a half-arrived one
+// off the end keeps "---PRO" from flashing in the bubble.
+const stripPartialMarker = (s) => s.replace(/\s*-{2,3}[A-Z]*-{0,2}$/, "");
+
+/** Turns a GOTO line into somewhere to scroll, or null if it names nowhere real. */
+function resolveGoto(line) {
+    const key = slug(line.trim().split("\n")[0]);
+    if (!key) return null;
+
+    const section = SITE_SECTIONS.find(s => s.id === key || s.aliases.includes(key));
+    if (section) return { domId: section.id, label: section.label };
+
+    const project = projects.find(p => key === p.id || key === `project-${p.id}` || key === slug(p.name));
+    if (project) return { domId: `project-${project.id}`, label: project.name, isCard: true };
+
+    return null;
+}
+
+/**
+ * Splits a reply into the text to show and the two optional trailers the API
+ * can append: `---PROJECTS---` (comma-separated project names) and `---GOTO---`
+ * (one place on the page). Either may come first.
+ */
+function parseReply(raw) {
+    const parts = raw.split(/---(PROJECTS|GOTO)---/);
+    let projectsLine = "";
+    let gotoLine = "";
+    for (let i = 1; i < parts.length; i += 2) {
+        const body = stripPartialMarker(parts[i + 1] ?? "");
+        if (parts[i] === "PROJECTS") projectsLine += `,${body}`;
+        else gotoLine += body;
+    }
+
+    const names = projectsLine.split(',').map(n => n.trim()).filter(Boolean);
+    return {
+        text: stripPartialMarker(parts[0]).trim(),
+        projects: projects.filter(p =>
+            names.some(name => p.name.toLowerCase().includes(name.toLowerCase()))
+        ),
+        goto: resolveGoto(gotoLine),
+    };
+}
+
+/** The section on screen: the last one whose top has passed 40% of the viewport. */
+function currentSectionId() {
+    const line = window.innerHeight * 0.4;
+    let current = SITE_SECTIONS[0].id;
+    for (const { id } of SITE_SECTIONS) {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= line) current = id;
+    }
+    return current;
+}
 
 const ProjectDiscovery = () => {
     const isMobile = useIsMobile();
     const [isOpen, setIsOpen] = useState(false);
     const [query, setQuery] = useState('');
     const [messages, setMessages] = useState([
-        { type: 'bot', content: "Hey! Ask me about my projects, skills, or experience or let's just talk!" }
+        { type: 'bot', content: "Hey! Ask me about my projects, skills, experience, or where to find anything on this page. Or let's just talk!" }
     ]);
     const [loading, setLoading] = useState(false);
     // The API is serverless, so an idle-cold first request is slow but fine.
@@ -118,29 +175,23 @@ const ProjectDiscovery = () => {
         try {
             await chatWithAIStream(userMsg, projects, (chunk) => {
                 accumulatedContent += chunk;
-
-                // Split conversational reply from project matches
-                const [replyPart, projectsPart] = accumulatedContent.split('---PROJECTS---');
-
-                let matchedProjects = [];
-                if (projectsPart) {
-                    const projectNames = projectsPart.split(',').map(n => n.trim()).filter(Boolean);
-                    matchedProjects = projects.filter(p =>
-                        projectNames.some(name => p.name.toLowerCase().includes(name.toLowerCase()))
-                    );
-                }
+                const reply = parseReply(accumulatedContent);
 
                 setMessages(prev => {
                     const updated = [...prev];
                     const lastIndex = updated.length - 1;
                     updated[lastIndex] = {
                         ...updated[lastIndex],
-                        content: replyPart.trim(),
-                        projects: matchedProjects.length > 0 ? matchedProjects : undefined
+                        content: reply.text,
+                        projects: reply.projects.length > 0 ? reply.projects : undefined,
+                        goto: reply.goto ?? undefined
                     };
                     return updated;
                 });
             }, {
+                // Where the visitor is on the page, so "how do I contact him?"
+                // asked from the email section gets "it's right there".
+                section: currentSectionId(),
                 onStatus: (phase) => {
                     if (phase === 'streaming' || phase === 'done') {
                         clearTimeout(warmupTimer);
@@ -178,14 +229,69 @@ const ProjectDiscovery = () => {
         }
     };
 
+    // Scrolls the page to a section or project card the assistant pointed at.
+    // On a phone the chat covers the whole page, so it closes first, and the
+    // scroll waits a frame for the close to hand scrolling back to the page.
+    const goTo = ({ domId, isCard }) => {
+        if (isMobile) setIsOpen(false);
+        requestAnimationFrame(() => {
+            const el = document.getElementById(domId);
+            if (!el) return;
+            if (domId === "home") {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+                return;
+            }
+            el.scrollIntoView({ behavior: "smooth", block: isCard ? "center" : "start" });
+            if (isCard) {
+                // Outline the card so it's obvious which one they were sent to.
+                // Removing and re-adding replays it for the same card twice.
+                el.classList.remove("chat-spotlight");
+                void el.offsetWidth;
+                el.classList.add("chat-spotlight");
+                setTimeout(() => el.classList.remove("chat-spotlight"), 3200);
+            }
+        });
+    };
+
     // On a phone the button drops its label and shrinks to an icon: the full
     // pill sat on top of whatever card was scrolled under it.
     const fabSize = isMobile ? 56 : 60;
     const fabCompact = isMobile || isOpen;
     const canSend = Boolean(query.trim()) && !loading;
 
+    const chipStyle = {
+        padding: "10px",
+        background: "var(--chat-bot-bg)",
+        borderRadius: "10px",
+        border: "1px solid var(--chat-border)",
+        textDecoration: "none",
+        color: "var(--chat-bot-text)",
+        fontSize: "0.85rem",
+        fontFamily: "var(--font-mono)",
+        transition: "background 0.2s"
+    };
+
     return (
         <>
+            {/* The phone's pulse ring. It sits behind the button and only scales
+                and fades; see .ai-fab-pulse below for why. */}
+            {isMobile && !isOpen && (
+                <span
+                    className="ai-fab-pulse"
+                    aria-hidden="true"
+                    style={{
+                        // Inline, like the button's: App.css gives every direct
+                        // child of .app-container `position: relative; z-index: 1`.
+                        position: "fixed",
+                        zIndex: 999,
+                        bottom: "calc(16px + env(safe-area-inset-bottom, 0px))",
+                        right: "16px",
+                        width: `${fabSize}px`,
+                        height: `${fabSize}px`,
+                    }}
+                />
+            )}
+
             {/* Floating Toggle Button — hidden on mobile when chat is open */}
             <button
                 id="ai-assistant-btn"
@@ -202,9 +308,9 @@ const ProjectDiscovery = () => {
                     height: `${fabSize}px`,
                     padding: fabCompact ? "0" : "0 25px",
                     borderRadius: `${fabSize / 2}px`,
+                    // Solid fill, so there's no backdrop blur: it could never
+                    // show through, and it still cost a blur pass every frame.
                     background: "var(--color-monica)",
-                    backdropFilter: "blur(8px)",
-                    WebkitBackdropFilter: "blur(8px)",
                     boxShadow: "0 0 20px rgba(167,210,115,0.22), 0 8px 30px rgba(0,0,0,0.12)",
                     color: "var(--bg-color)",
                     border: "1px solid var(--color-monica)",
@@ -339,39 +445,86 @@ const ProjectDiscovery = () => {
                                     {msg.content}
                                 </div>
 
-                                {/* Render matching projects if any */}
+                                {/* Matching projects. A chip takes you to the project's card
+                                    on the page, where Demo, Live Site and Code all are; a
+                                    public repo also gets a direct Code link beside it. The chip
+                                    used to go straight to GitHub, a 404 for MoNiCa.Ai's
+                                    private repo. */}
                                 {msg.projects && (
                                     <div style={{ marginTop: "10px", display: "flex", flexDirection: "column", gap: "8px" }}>
-                                        {msg.projects.map((p, pIdx) => (
-                                            <a
-                                                key={pIdx}
-                                                href={p.link}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="interactive-scale-sm"
-                                                style={{
-                                                    display: "block",
-                                                    padding: "10px",
-                                                    background: "var(--chat-bot-bg)",
-                                                    borderRadius: "10px",
-                                                    border: "1px solid var(--chat-border)",
-                                                    textDecoration: "none",
-                                                    color: "var(--chat-bot-text)",
-                                                    fontSize: "0.85rem",
-                                                    transition: "background 0.2s"
-                                                }}
-                                                onMouseOver={(e) => e.currentTarget.style.background = "var(--chat-header)"}
-                                                onMouseOut={(e) => e.currentTarget.style.background = "var(--chat-bot-bg)"}
-                                            >
-                                                <div style={{ fontWeight: "bold", color: "var(--chat-user-text)", marginBottom: "4px" }}>
-                                                    {p.name}
-                                                </div>
-                                                <div style={{ fontSize: "0.75rem", color: "var(--text-color)", display: "flex", alignItems: "center", gap: "4px" }}>
-                                                    View Code <FaArrowRight style={{ fontSize: "0.65rem" }} />
-                                                </div>
-                                            </a>
+                                        {msg.projects.map((p) => (
+                                            <div key={p.id} style={{ display: "flex", gap: "6px" }}>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => goTo({ domId: `project-${p.id}`, isCard: true })}
+                                                    className="interactive-scale-sm"
+                                                    style={{ ...chipStyle, flex: 1, textAlign: "left", cursor: "pointer" }}
+                                                    onMouseOver={(e) => e.currentTarget.style.background = "var(--chat-header)"}
+                                                    onMouseOut={(e) => e.currentTarget.style.background = "var(--chat-bot-bg)"}
+                                                >
+                                                    <div style={{ fontWeight: "bold", color: "var(--chat-user-text)", marginBottom: "4px" }}>
+                                                        {p.name}
+                                                    </div>
+                                                    <div style={{ fontSize: "0.75rem", color: "var(--text-color)", display: "flex", alignItems: "center", gap: "4px" }}>
+                                                        Show me <FaArrowRight style={{ fontSize: "0.65rem" }} />
+                                                    </div>
+                                                </button>
+                                                {!p.codeDisabled && (
+                                                    <a
+                                                        href={p.link}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        aria-label={`${p.name} source code on GitHub`}
+                                                        className="interactive-scale-sm"
+                                                        style={{
+                                                            ...chipStyle,
+                                                            display: "flex",
+                                                            flexDirection: "column",
+                                                            alignItems: "center",
+                                                            justifyContent: "center",
+                                                            gap: "4px",
+                                                            fontSize: "0.7rem",
+                                                            fontWeight: "bold"
+                                                        }}
+                                                        onMouseOver={(e) => e.currentTarget.style.background = "var(--chat-header)"}
+                                                        onMouseOut={(e) => e.currentTarget.style.background = "var(--chat-bot-bg)"}
+                                                    >
+                                                        <FaGithub style={{ fontSize: "1rem" }} />
+                                                        Code
+                                                    </a>
+                                                )}
+                                            </div>
                                         ))}
                                     </div>
+                                )}
+
+                                {/* The place on the page the answer points to. Skipped when
+                                    it's a project card a chip above already goes to. */}
+                                {msg.goto && !msg.projects?.some(p => `project-${p.id}` === msg.goto.domId) && (
+                                    <button
+                                        type="button"
+                                        onClick={() => goTo(msg.goto)}
+                                        className="interactive-scale-sm"
+                                        style={{
+                                            marginTop: "8px",
+                                            display: "inline-flex",
+                                            alignItems: "center",
+                                            gap: "6px",
+                                            padding: "7px 12px",
+                                            borderRadius: "12px",
+                                            border: "1px solid var(--chat-user-border)",
+                                            background: "var(--chat-user-bg)",
+                                            color: "var(--chat-user-text)",
+                                            fontFamily: "var(--font-mono)",
+                                            fontSize: "0.75rem",
+                                            fontWeight: "bold",
+                                            textAlign: "left",
+                                            cursor: "pointer"
+                                        }}
+                                    >
+                                        Go to {msg.goto.label}
+                                        <FaArrowRight style={{ fontSize: "0.65rem", flexShrink: 0 }} />
+                                    </button>
                                 )}
 
                                 {msg.retryWith && idx === messages.length - 1 && !loading && (
@@ -488,6 +641,39 @@ const ProjectDiscovery = () => {
                         animation: ai-pulse-ring 2.2s ease-out infinite;
                     }
                 }
+                /* A box-shadow can't be animated without repainting the button
+                   every frame, and the pulse runs for as long as the page is
+                   open. On a phone the button is a plain circle, so the same
+                   ring can be a disc behind it that only scales and fades,
+                   which the GPU does without repainting anything. Scale 1.71
+                   takes the 56px disc out to the 20px ring the shadow drew. */
+                @media (max-width: 767px) {
+                    .btn-ai-assistant:not(.is-open) {
+                        animation: none;
+                    }
+                }
+                .ai-fab-pulse {
+                    border-radius: 50%;
+                    background: rgba(167, 210, 115, 0.55);
+                    pointer-events: none;
+                    animation: ai-fab-pulse 2.2s ease-out infinite;
+                }
+                @keyframes ai-fab-pulse {
+                    0%   { transform: scale(1); opacity: 1; }
+                    65%  { transform: scale(1.71); opacity: 0; }
+                    100% { transform: scale(1.71); opacity: 0; }
+                }
+                /* A project card the assistant sent the visitor to lights up
+                   once the scroll has had a moment to land on it. */
+                .chat-spotlight {
+                    outline: 2px solid transparent;
+                    outline-offset: 6px;
+                    animation: chat-spotlight 2.4s ease-out 0.4s forwards;
+                }
+                @keyframes chat-spotlight {
+                    0%, 45% { outline-color: var(--project-theme, var(--color-monica)); }
+                    100%    { outline-color: transparent; }
+                }
                 @keyframes ai-pulse-ring {
                     0%   { box-shadow: 0 0 20px rgba(167,210,115,0.22), 0 8px 30px rgba(0,0,0,0.12), 0 0 0 0 rgba(167,210,115,0.55); }
                     65%  { box-shadow: 0 0 20px rgba(167,210,115,0.22), 0 8px 30px rgba(0,0,0,0.12), 0 0 0 20px rgba(167,210,115,0); }
@@ -504,6 +690,7 @@ const ProjectDiscovery = () => {
                 }
                 @media (prefers-reduced-motion: reduce) {
                     .btn-ai-assistant:not(.is-open) { animation: none; }
+                    .ai-fab-pulse { display: none; }
                 }
                 /* Hover lift only where hover exists: a tap on iOS leaves :hover
                    stuck on, which kept the button scaled up after the tap. */

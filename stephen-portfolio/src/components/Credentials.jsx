@@ -50,9 +50,9 @@ const Credentials = () => {
                 <div
                     style={{
                         display: "grid",
-                        gridTemplateColumns: isMobile
-                            ? "1fr"
-                            : "repeat(auto-fit, minmax(300px, 1fr))",
+                        // Columns follow the room available, not the 768px
+                        // breakpoint — see the matching note in Projects.jsx.
+                        gridTemplateColumns: "repeat(auto-fit, minmax(min(300px, 100%), 1fr))",
                         gap: isMobile ? "20px" : "24px",
                         // Only one credential carries a description, so stretching
                         // would leave the rest of its row mostly empty.

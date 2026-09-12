@@ -40,8 +40,11 @@ function retryableError(message, cause) {
  * `onStatus` reports connection phase so the UI can distinguish "warming up"
  * from "hung" — without it, a cold start is visually identical to a dead
  * request and reads as the assistant being broken.
+ *
+ * `section` is the id of the page section the visitor has on screen (see
+ * `src/data/siteSections.js`), so the answer can start from where they are.
  */
-export async function chatWithAIStream(userMessage, projects, onChunk, { onStatus } = {}) {
+export async function chatWithAIStream(userMessage, projects, onChunk, { onStatus, section } = {}) {
     const controller = new AbortController();
     let timer = setTimeout(() => controller.abort(), CONNECT_TIMEOUT_MS);
 
@@ -58,7 +61,7 @@ export async function chatWithAIStream(userMessage, projects, onChunk, { onStatu
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ userMessage, projects }),
+            body: JSON.stringify({ userMessage, projects, section }),
             signal: controller.signal
         });
 

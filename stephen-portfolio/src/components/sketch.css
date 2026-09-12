@@ -134,3 +134,13 @@
         border-radius: 14px;
     }
 }
+
+/* Where index.css drops the sheet's blur, thicken the fill in its place so
+   the floor grid doesn't read through the sheet. Light mode's sheet is
+   already opaque. */
+@media (max-width: 767px), (hover: none) and (pointer: coarse) {
+    :root,
+    :root[data-theme="dark"] {
+        --sketch-sheet-bg: linear-gradient(135deg, rgba(10, 15, 30, 0.8), rgba(15, 23, 42, 0.86));
+    }
+}

@@ -18,7 +18,10 @@ const Navbar = ({ theme = "dark", toggleTheme }) => {
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    const handleScroll = () => {
+    let frame = 0;
+
+    const update = () => {
+      frame = 0;
       setScrolled(window.scrollY > (window.innerWidth < 768 ? 50 : 100));
 
       const scrollPos = window.scrollY + 200;
@@ -32,9 +35,19 @@ const Navbar = ({ theme = "dark", toggleTheme }) => {
       setSection(newSection);
     };
 
-    window.addEventListener("scroll", handleScroll);
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+    // A phone can fire several scroll events per frame, and each pass reads
+    // six offsetTops, which forces layout. Once a frame is all the underline
+    // needs. Passive, so the browser never waits on this before scrolling.
+    const handleScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    update();
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
   }, []);
 
   useEffect(() => {

@@ -93,6 +93,19 @@
   }
 }
 
+/* The glow layer is bigger than the screen and sits under a 50px blur, and
+   the drift re-blurs all of it every frame for as long as the hero is in
+   view, which is the moment the page opens. A phone keeps the glow and
+   drops the drift. The blur goes too: the two radial gradients already
+   fade out on their own, so the filter only softened an edge that isn't
+   there. */
+@media (max-width: 767px), (hover: none) and (pointer: coarse) {
+  .hero::after {
+    animation: none;
+    filter: none;
+  }
+}
+
 /* ============================================================
    HERO SOCIAL ICONS PURE CSS INTERACTIVE HOVER SCALING
    ============================================================ */

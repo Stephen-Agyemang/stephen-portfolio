@@ -248,17 +248,24 @@ const Projects = () => {
             <div
                 style={{
                     display: "grid",
-                    gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(310px, 1fr))",
+                    // One column on a phone and two once there's room for them,
+                    // rather than switching at the 768px breakpoint: an iPad mini
+                    // or an unfolded foldable sits just under it and used to get
+                    // a single phone-width card centred in a tablet-width screen.
+                    // min() keeps a 320px phone from overflowing the 310px track.
+                    gridTemplateColumns: "repeat(auto-fit, minmax(min(310px, 100%), 1fr))",
                     gap: isMobile ? "30px" : "40px",
                     justifyContent: "center"
                 }}
             >
                 {projects.map((project, index) => {
                     const themeColor = projectColors[project.id] || "#6c9a57";
-                    
+
                     return (
                         <div
                             key={index}
+                            // The chat assistant scrolls to a card by this id.
+                            id={`project-${project.id}`}
                             className="project-card"
                             style={{ '--project-theme': themeColor }}
                         >
@@ -271,7 +278,7 @@ const Projects = () => {
                             {/* Blinking process LED, now riding on top of the feed
                                 band — it carries its own chip background so it stays
                                 legible against whatever the screenshot puts behind it. */}
-                            <div style={{
+                            <div className="project-status-chip" style={{
                                 position: "absolute",
                                 top: "14px",
                                 right: "14px",

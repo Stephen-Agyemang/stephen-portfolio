@@ -1,9 +1,11 @@
 import React from "react";
 import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
+import useIsMobile from "../hooks/useIsMobile";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const isMobile = window.innerWidth < 768;
+  // Tracks resizes, so folding or unfolding a foldable updates the footer too.
+  const isMobile = useIsMobile();
 
   return (
     <footer

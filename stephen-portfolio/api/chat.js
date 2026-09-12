@@ -3,6 +3,9 @@ import { fetchGithubProjects } from "./githubFetcher.js";
 import { getLinkedInProfile } from "./linkedinProfile.js";
 import { logChatMessage } from "./chatLogger.js";
 import { applyCors, isOriginAllowed, enforceRateLimit, rejectRateLimited, sanitizeProjects } from "./guards.js";
+import { buildSiteGuide, SITE_SECTION_IDS, sectionName } from "./siteGuide.js";
+
+const SITE_GUIDE = buildSiteGuide();
 
 const openAiKey = globalThis.process?.env?.OPENAI_API_KEY;
 
@@ -159,11 +162,15 @@ export default async function handler(req, res) {
         return res.status(403).json({ error: "Origin not allowed" });
     }
 
-    const { userMessage, projects: localProjects } = req.body;
+    const { userMessage, projects: localProjects, section } = req.body;
 
     if (!userMessage || typeof userMessage !== "string") {
         return res.status(400).json({ error: "Invalid input" });
     }
+
+    // The section the visitor had on screen when they asked. Only a known id
+    // gets through, so the field can't carry text into the prompt.
+    const visitorSection = SITE_SECTION_IDS.has(section) ? sectionName(section) : null;
 
     if (userMessage.length > 500) {
         return res.status(400).json({ error: "Message too long" });
@@ -266,7 +273,7 @@ CORE RULES:
 
 5. Never volunteer information that wasn't asked for. The visitor will ask if they want to know. Projects, skills, experience — only bring these up when directly asked.
 
-6. No raw links unless asked. The page already has buttons and cards — point people there instead.
+6. You know this page — see SITE GUIDE below. When the answer lives somewhere on it, say exactly where and what to click, and add a GOTO line (see Response format) so they get a button that takes them there. If they're already looking at it, tell them it's right there. No raw links unless asked.
 
 7. Don't repeat yourself across a conversation. If you said something once, don't say it again.
 
@@ -282,13 +289,21 @@ CORE RULES:
 
 10. Never invent specifics that aren't in the context below (dates, job duties, project details, etc.). If someone asks something the context doesn't cover, say you're not sure or that you don't have that detail — don't guess or make something up just to sound complete. If you're caught contradicting yourself, just say so plainly and correct it instead of doubling down.
 
+11. Asked how to reach, contact, email, message or hire Stephen: the Email Draft Assistant is the best way — say in a sentence what it does — and LinkedIn is the other. GOTO contact-assistant. Never describe a feature or button the SITE GUIDE doesn't list.
+
 Response format:
 Write your conversational reply first.
 Then, ONLY if projects are relevant, add:
 ---PROJECTS---
-Project A, Project B`
+Project A, Project B
+Then, ONLY if sending them to one place on the page would help, add:
+---GOTO---
+one section id from the SITE GUIDE, or one project's exact name to go to its card
+
+SITE GUIDE — this page, top to bottom (id — name: what's there):
+${SITE_GUIDE}`
                 },
-                { role: "user", content: `Context:\n${contextBase.profileContext}\n\n${contextBase.linkedInContext}\n\nProjects:\n${projectContext}\n\nUser Message: "${userMessage}"` }
+                { role: "user", content: `Context:\n${contextBase.profileContext}\n\n${contextBase.linkedInContext}\n\nProjects:\n${projectContext}\n\n${visitorSection ? `The visitor is looking at: ${visitorSection}\n\n` : ""}User Message: "${userMessage}"` }
             ],
             max_completion_tokens: 220,
             stream: true,

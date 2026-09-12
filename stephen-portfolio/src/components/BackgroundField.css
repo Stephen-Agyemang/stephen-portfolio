@@ -172,8 +172,9 @@
 /* Three 600px+ layers under a 90px blur are the one real cost here, and
    moving them forces the compositor to keep each on its own texture.
    Phones keep the light, lose the motion; the grids stay parallaxed
-   because they carry no filter. */
-@media (max-width: 768px) {
+   because they carry no filter. Touch devices are included whatever their
+   width: an unfolded foldable is a phone's GPU at a tablet's width. */
+@media (max-width: 768px), (hover: none) and (pointer: coarse) {
     .ambient-glow-1,
     .ambient-glow-2,
     .ambient-glow-3 {
@@ -186,7 +187,9 @@
            on the page itself. */
         will-change: auto;
     }
+}
 
+@media (max-width: 768px) {
     .bg-floor {
         height: 42vh;
     }

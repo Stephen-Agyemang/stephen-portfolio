@@ -1,0 +1,76 @@
+/* ============================================================
+   DEVICON, SUBSET
+
+   The skill icons used to come from devicon's CDN stylesheet, which
+   pulls a font carrying every icon devicon ships — 268 KB over the wire
+   for the 17 this page draws, and the heaviest single download on a
+   phone. This is that same font cut down to those 17 glyphs (6.7 KB),
+   self-hosted so it gets a hashed, cacheable URL.
+
+   Source: devicon v2.15.1, fonts/devicon.ttf (MIT, © konpa). Subset with
+   fontTools' pyftsubset, keeping only the codepoints below:
+
+     pyftsubset devicon.ttf --flavor=woff \
+       --unicodes="U+E601,U+E603,U+E607,U+E61F,U+E635,U+E7A8,U+E7F7,U+E842,U+E845,U+E984,U+E986,U+E98A,U+E99E,U+E9FF,U+EA65,U+EB7D,U+EB89"
+
+   Adding an icon to the skills graph means adding its codepoint to that
+   list and its two rules below — copy both from devicon.min.css. An icon
+   that isn't here renders as nothing.
+   ============================================================ */
+
+@font-face {
+    font-family: "devicon";
+    src: url("../assets/fonts/devicon-subset.woff") format("woff");
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}
+
+[class^="devicon-"],
+[class*=" devicon-"] {
+    font-family: "devicon" !important;
+    speak: never;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.devicon-react-original:before { content: "\e601"; }
+.devicon-amazonwebservices-plain:before { content: "\e603"; }
+.devicon-redis-plain:before { content: "\e607"; }
+.devicon-docker-plain:before { content: "\e61f"; }
+.devicon-cplusplus-plain:before { content: "\e635"; }
+.devicon-git-plain:before { content: "\e7a8"; }
+.devicon-html5-plain:before { content: "\e7f7"; }
+.devicon-java-plain:before { content: "\e842"; }
+.devicon-javascript-plain:before { content: "\e845"; }
+.devicon-kubernetes-plain:before { content: "\e984"; }
+.devicon-googlecloud-plain:before { content: "\e986"; }
+.devicon-firebase-plain:before { content: "\e98a"; }
+.devicon-spring-plain:before { content: "\e99e"; }
+.devicon-google-plain:before { content: "\e9ff"; }
+.devicon-terraform-plain:before { content: "\ea65"; }
+.devicon-postgresql-plain:before { content: "\eb7d"; }
+.devicon-python-plain:before { content: "\eb89"; }
+
+.devicon-react-original.colored { color: #61dafb; }
+.devicon-amazonwebservices-plain.colored { color: #f7a80d; }
+.devicon-redis-plain.colored { color: #d82c20; }
+.devicon-docker-plain.colored { color: #019bc6; }
+.devicon-cplusplus-plain.colored { color: #9c033a; }
+.devicon-git-plain.colored { color: #f34f29; }
+.devicon-html5-plain.colored { color: #e54d26; }
+.devicon-java-plain.colored { color: #ea2d2e; }
+.devicon-javascript-plain.colored { color: #f0db4f; }
+.devicon-kubernetes-plain.colored { color: #486bb3; }
+.devicon-googlecloud-plain.colored { color: #557ebf; }
+.devicon-firebase-plain.colored { color: #f58220; }
+.devicon-spring-plain.colored { color: #5fb832; }
+.devicon-google-plain.colored { color: #587dbd; }
+.devicon-terraform-plain.colored { color: #5c4ee5; }
+.devicon-postgresql-plain.colored { color: #336791; }
+.devicon-python-plain.colored { color: #ffd845; }
