@@ -51,6 +51,32 @@ function parseReply(raw) {
     };
 }
 
+// How much of the conversation rides along with each question: the last five
+// exchanges, which covers any follow-up. The API enforces its own cap as well.
+const HISTORY_EXCHANGES = 5;
+
+/**
+ * The conversation so far, in the shape the API takes. Only complete
+ * exchanges go in — a question whose reply failed, the greeting and the
+ * chat's own notices have no `raw` reply and are left out. A reply goes in as
+ * the model wrote it, trailers included, so its own earlier turns keep showing
+ * it the format it's meant to answer in.
+ */
+function toHistory(messages) {
+    const turns = [];
+    for (let i = 0; i < messages.length - 1; i++) {
+        const question = messages[i];
+        const reply = messages[i + 1];
+        if (question.type === 'user' && reply.type === 'bot' && reply.raw) {
+            turns.push(
+                { role: 'user', content: question.content },
+                { role: 'assistant', content: reply.raw }
+            );
+        }
+    }
+    return turns.slice(-HISTORY_EXCHANGES * 2);
+}
+
 /** The section on screen: the last one whose top has passed 40% of the viewport. */
 function currentSectionId() {
     const line = window.innerHeight * 0.4;
@@ -84,7 +110,8 @@ const ProjectDiscovery = () => {
         return () => window.removeEventListener('open-ai-assistant', openChat);
     }, []);
 
-    // Chat history resets on page reload (no localStorage persistence)
+    // The conversation, and the assistant's memory of it, resets on page
+    // reload (no localStorage persistence).
 
     // Scroll the message list itself. scrollIntoView also scrolls every
     // scrollable ancestor, which on a phone dragged the page behind the chat.
@@ -163,6 +190,9 @@ const ProjectDiscovery = () => {
     };
 
     const streamReply = async (userMsg, { retry = false } = {}) => {
+        // Taken before this question is added. On a retry the failed exchange
+        // is still at the end, and toHistory skips it for having no reply.
+        const history = toHistory(messages);
         setLoading(true);
         // A retry swaps the failed reply for a fresh placeholder; a new message
         // gets its own bubble first.
@@ -184,11 +214,14 @@ const ProjectDiscovery = () => {
                         ...updated[lastIndex],
                         content: reply.text,
                         projects: reply.projects.length > 0 ? reply.projects : undefined,
-                        goto: reply.goto ?? undefined
+                        goto: reply.goto ?? undefined,
+                        // What the model actually wrote, for the next request's history.
+                        raw: accumulatedContent
                     };
                     return updated;
                 });
             }, {
+                history,
                 // Where the visitor is on the page, so "how do I contact him?"
                 // asked from the email section gets "it's right there".
                 section: currentSectionId(),

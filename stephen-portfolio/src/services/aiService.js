@@ -43,8 +43,11 @@ function retryableError(message, cause) {
  *
  * `section` is the id of the page section the visitor has on screen (see
  * `src/data/siteSections.js`), so the answer can start from where they are.
+ *
+ * `history` is the conversation before this message, as
+ * `[{ role: "user" | "assistant", content }]`, oldest first.
  */
-export async function chatWithAIStream(userMessage, projects, onChunk, { onStatus, section } = {}) {
+export async function chatWithAIStream(userMessage, projects, onChunk, { onStatus, section, history = [] } = {}) {
     const controller = new AbortController();
     let timer = setTimeout(() => controller.abort(), CONNECT_TIMEOUT_MS);
 
@@ -61,7 +64,7 @@ export async function chatWithAIStream(userMessage, projects, onChunk, { onStatu
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ userMessage, projects, section }),
+            body: JSON.stringify({ userMessage, projects, section, history }),
             signal: controller.signal
         });
 

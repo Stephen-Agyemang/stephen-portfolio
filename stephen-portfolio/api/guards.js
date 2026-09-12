@@ -227,3 +227,21 @@ export function sanitizeProjects(projects, { maxProjects = 25, maxFieldChars = 3
         skills: Array.isArray(p?.skills) ? p.skills.slice(0, 10).map(clamp) : [],
     }));
 }
+
+/**
+ * Caps the conversation so far, which the chat sends so the assistant can
+ * follow up on its own answers. Keeps the last `maxMessages` turns, clips each
+ * to `maxChars`, and lets only plain user/assistant text through — any other
+ * role or shape in the body is dropped rather than handed to the model. The
+ * caps bound what one request can cost: ten turns of at most 1,000 characters.
+ */
+export function sanitizeHistory(history, { maxMessages = 10, maxChars = 1000 } = {}) {
+    if (!Array.isArray(history)) return [];
+
+    return history
+        .filter((m) => (m?.role === "user" || m?.role === "assistant")
+            && typeof m.content === "string"
+            && m.content.trim())
+        .slice(-maxMessages)
+        .map((m) => ({ role: m.role, content: m.content.slice(0, maxChars) }));
+}

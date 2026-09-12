@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import { fetchGithubProjects } from "./githubFetcher.js";
 import { getLinkedInProfile } from "./linkedinProfile.js";
 import { logChatMessage } from "./chatLogger.js";
-import { applyCors, isOriginAllowed, enforceRateLimit, rejectRateLimited, sanitizeProjects } from "./guards.js";
+import { applyCors, isOriginAllowed, enforceRateLimit, rejectRateLimited, sanitizeProjects, sanitizeHistory } from "./guards.js";
 import { buildSiteGuide, SITE_SECTION_IDS, sectionName } from "./siteGuide.js";
 
 const SITE_GUIDE = buildSiteGuide();
@@ -162,7 +162,7 @@ export default async function handler(req, res) {
         return res.status(403).json({ error: "Origin not allowed" });
     }
 
-    const { userMessage, projects: localProjects, section } = req.body;
+    const { userMessage, projects: localProjects, section, history } = req.body;
 
     if (!userMessage || typeof userMessage !== "string") {
         return res.status(400).json({ error: "Invalid input" });
@@ -171,6 +171,11 @@ export default async function handler(req, res) {
     // The section the visitor had on screen when they asked. Only a known id
     // gets through, so the field can't carry text into the prompt.
     const visitorSection = SITE_SECTION_IDS.has(section) ? sectionName(section) : null;
+
+    // The earlier turns of this chat, oldest first. Without them every
+    // question arrived on its own, so "tell me more" or "take me there" had
+    // nothing to refer back to.
+    const priorTurns = sanitizeHistory(history);
 
     if (userMessage.length > 500) {
         return res.status(400).json({ error: "Message too long" });
@@ -275,7 +280,7 @@ CORE RULES:
 
 6. You know this page — see SITE GUIDE below. When the answer lives somewhere on it, say exactly where and what to click, and add a GOTO line (see Response format) so they get a button that takes them there. If they're already looking at it, tell them it's right there. No raw links unless asked.
 
-7. Don't repeat yourself across a conversation. If you said something once, don't say it again.
+7. The messages before the latest one are this conversation so far. Use them: answer follow-ups like "tell me more", "what about the second one?" or "take me there" from what was just said, and don't repeat yourself — if you said something once, don't say it again.
 
 8. On off-topic questions (random trivia, other people, unrelated topics), keep it light and very brief — one sentence — then gently bring it back only if it's natural, not forced.
 
@@ -303,6 +308,7 @@ one section id from the SITE GUIDE, or one project's exact name to go to its car
 SITE GUIDE — this page, top to bottom (id — name: what's there):
 ${SITE_GUIDE}`
                 },
+                ...priorTurns,
                 { role: "user", content: `Context:\n${contextBase.profileContext}\n\n${contextBase.linkedInContext}\n\nProjects:\n${projectContext}\n\n${visitorSection ? `The visitor is looking at: ${visitorSection}\n\n` : ""}User Message: "${userMessage}"` }
             ],
             max_completion_tokens: 220,
