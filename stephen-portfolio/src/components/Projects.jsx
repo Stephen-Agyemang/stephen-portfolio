@@ -11,6 +11,13 @@ const ProjectDemoModal = lazy(() => import("./ProjectDemoModal.jsx"));
 // first person who does click Demo still gets it instantly.
 const warmDemoChunk = () => import("./ProjectDemoModal.jsx");
 
+// { "../assets/projects/zork.webp": "/assets/zork-<hash>.webp", … }
+const FEED_SHOTS = import.meta.glob("../assets/projects/*.webp", {
+    eager: true,
+    query: "?url",
+    import: "default",
+});
+
 /**
  * Screenshot band across the top of a project card.
  *
@@ -20,20 +27,24 @@ const warmDemoChunk = () => import("./ProjectDemoModal.jsx");
  * site's HUD language instead of against it. Hovering the card clears the tint
  * and lets the real colours through.
  *
- * `project.image` is a URL into `public/`, not an import, so a screenshot that
- * hasn't been captured yet 404s and drops through to the offline placeholder
- * rather than breaking the build. The band is decorative — the card already
- * carries the name, tagline and description as text — hence `aria-hidden`.
+ * The screenshot is `src/assets/projects/<id>.webp`, found through the glob
+ * above. Importing it gives it a content-hashed URL, so no browser can be
+ * holding a stale copy — see the README in that folder for the caching bug
+ * that fixed `public/` URLs caused. A project without a file isn't in the
+ * glob and shows the offline placeholder, and the build doesn't care. The
+ * band is decorative — the card already carries the name, tagline and
+ * description as text — hence `aria-hidden`.
  */
 const ProjectFeed = ({ project, themeColor }) => {
     const [failed, setFailed] = useState(false);
-    const showImage = Boolean(project.image) && !failed;
+    const src = FEED_SHOTS[`../assets/projects/${project.id}.webp`];
+    const showImage = Boolean(src) && !failed;
 
     return (
         <div className="project-feed" aria-hidden="true">
             {showImage ? (
                 <img
-                    src={project.image}
+                    src={src}
                     alt=""
                     loading="lazy"
                     decoding="async"
